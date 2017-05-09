@@ -20,11 +20,13 @@ public class Main {
 
         final ActorSystem system = ActorSystem.create("DifferentialEvolution", config);
 
-        final Props jobActorProps = Props.create(DifferentialEvolutionJobActor.class);
+        final Props jobActorProps = Props.create(DifferentialEvolutionTaskActor.class);
 
-        final ActorRef jobActorRef = system.actorOf(jobActorProps, "JobActor");
+        final ActorRef jobActorRef = system.actorOf(jobActorProps, "TaskActor");
 
-        Future<Object> problemSolvage = Patterns.ask(jobActorRef, new DEJob(1), 10000L);
+        MainDETask task = new MainDETask(1, 100, 10, new double[]{-1, -1, -1}, new double[]{1, 1, 1});
+
+        Future<Object> problemSolvage = Patterns.ask(jobActorRef, task, 10000L);
 
         problemSolvage.onComplete(new OnComplete<Object>() {
             @Override
