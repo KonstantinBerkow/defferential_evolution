@@ -18,7 +18,7 @@ public class Main {
     public static void main(String[] args) {
         final Config config = ConfigFactory.load("application.conf");
 
-        final ActorSystem system = ActorSystem.create("DifferentialEvolution");
+        final ActorSystem system = ActorSystem.create("DifferentialEvolution", config);
 
         final Props jobActorProps = Props.create(DifferentialEvolutionJobActor.class);
 
@@ -30,11 +30,10 @@ public class Main {
             @Override
             public void onComplete(Throwable failure, Object success) throws Throwable {
                 LoggingAdapter log = system.log();
-                System.out.println("log: " + log);
                 if (failure != null) {
-                    failure.printStackTrace();
+                    log.error(failure, "Failed to complete task #1!");
                 } else {
-                    System.out.printf("Success for task #1: %s!\n", success);
+                    log.debug("Task #1 result: {}", success);
                 }
                 system.terminate();
             }
