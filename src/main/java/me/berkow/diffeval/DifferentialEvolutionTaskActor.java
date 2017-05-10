@@ -47,7 +47,7 @@ public class DifferentialEvolutionTaskActor extends AbstractActor {
                 }, new FI.UnitApply<MainDETask>() {
                     @Override
                     public void apply(MainDETask task) throws Exception {
-                        context().system().log().debug("{} could not calculate {}", this, task);
+                        context().system().log().debug("{} could not calculate {}", DifferentialEvolutionTaskActor.this, task);
                         TaskFailedMsg message = new TaskFailedMsg("Service unavailable, try again later", task);
                         sender().tell(message, sender());
                     }
@@ -55,7 +55,7 @@ public class DifferentialEvolutionTaskActor extends AbstractActor {
                 .match(MainDETask.class, new FI.UnitApply<MainDETask>() {
                     @Override
                     public void apply(MainDETask task) throws Exception {
-                        context().system().log().debug("{} received task {}", this, task);
+                        context().system().log().debug("{} received task {}", DifferentialEvolutionTaskActor.this, task);
                         calculate(task);
                     }
                 })
@@ -66,13 +66,13 @@ public class DifferentialEvolutionTaskActor extends AbstractActor {
                         context().watch(sender);
                         backends.add(sender);
 
-                        context().system().log().debug("{} received registration of {}", this, sender);
+                        context().system().log().debug("{} received registration of {}", DifferentialEvolutionTaskActor.this, sender);
                     }
                 })
                 .match(Terminated.class, new FI.UnitApply<Terminated>() {
                     @Override
                     public void apply(Terminated terminated) throws Exception {
-                        context().system().log().debug("{} received termination of {}", this, terminated.getActor());
+                        context().system().log().debug("{} received termination of {}", DifferentialEvolutionTaskActor.this, terminated.getActor());
                         backends.remove(terminated.getActor());
                     }
                 })
