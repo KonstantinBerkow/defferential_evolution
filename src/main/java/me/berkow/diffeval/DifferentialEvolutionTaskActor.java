@@ -5,13 +5,10 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Terminated;
 import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
 import akka.japi.Function;
 import akka.japi.pf.FI;
 import akka.pattern.Patterns;
-import scala.Function1;
 import scala.concurrent.Future;
-import scala.util.Try;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by konstantinberkow on 5/8/17.
  */
 public class DifferentialEvolutionTaskActor extends AbstractActor {
-    public static final String BACKEND_REGISTRATION = "BackendRegistration";
+    public static final String BACKEND_REGISTRATION = "register";
 
     private final String port;
     private final List<ActorRef> backends;

@@ -1,11 +1,12 @@
 package me.berkow.diffeval;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
  * Created by konstantinberkow on 5/9/17.
  */
-public class MainResult {
+public class MainResult implements Serializable {
 
     private final int problemId;
     private final double[] result;
