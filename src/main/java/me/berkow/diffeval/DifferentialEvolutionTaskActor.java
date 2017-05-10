@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by konstantinberkow on 5/8/17.
  */
 public class DifferentialEvolutionTaskActor extends AbstractActor {
-    public static final String BACKEND_REGISTRATION = "register";
+    public static final String BACKEND_REGISTRATION = "BackendRegistration";
 
     private final String port;
     private final List<ActorRef> backends;

@@ -28,7 +28,7 @@ public class DEFrontendMain {
 
         final Props taskActorProps = Props.create(DifferentialEvolutionTaskActor.class, port);
 
-        final ActorRef taskActorRef = system.actorOf(taskActorProps, "TaskActor");
+        final ActorRef taskActorRef = system.actorOf(taskActorProps, "frontend");
 
         final MainDETask task = new MainDETask(1, 100, 10, new double[]{-1, -1, -1}, new double[]{1, 1, 1});
 
