@@ -1,6 +1,7 @@
 package me.berkow.diffeval;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorSystem;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
@@ -21,8 +22,12 @@ public class DECalculationActor extends AbstractActor {
 
     @Override
     public void preStart() throws Exception {
-        cluster = Cluster.get(getContext().system());
+        final ActorSystem system = context().system();
+
+        cluster = Cluster.get(system);
         cluster.subscribe(self(), ClusterEvent.MemberUp.class);
+
+        system.log().debug("{} pre start!", this);
     }
 
     @Override
@@ -59,6 +64,7 @@ public class DECalculationActor extends AbstractActor {
     }
 
     private void register(Member member) {
+        context().system().log().debug("{} try to register {}", this, member);
         if (member.hasRole("frontend")) {
             context().actorSelection(member.address() + "/user/frontend").tell(DifferentialEvolutionTaskActor.BACKEND_REGISTRATION, self());
         }
