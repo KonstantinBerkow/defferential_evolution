@@ -3,9 +3,7 @@ package me.berkow.diffeval;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-/**
- * Created by konstantinberkow on 5/10/17.
- */
+
 public class Main {
 
     public static void main(String[] args) {

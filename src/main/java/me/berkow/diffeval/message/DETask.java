@@ -5,22 +5,20 @@ import me.berkow.diffeval.problem.Problem;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Created by konstantinberkow on 5/10/17.
- */
+
 public class DETask implements Serializable {
 
     private final int maxIterationsCount;
     private final List<double[]> initialPopulation;
     private final float amplification;
-    private final float convergence;
+    private final float crossoverProbability;
     private final Problem problem;
 
     public DETask(int maxIterationsCount, List<double[]> initialPopulation, float amplification, float convergence, Problem problem) {
         this.maxIterationsCount = maxIterationsCount;
         this.initialPopulation = initialPopulation;
         this.amplification = amplification;
-        this.convergence = convergence;
+        this.crossoverProbability = convergence;
         this.problem = problem;
     }
 
@@ -36,12 +34,16 @@ public class DETask implements Serializable {
         return amplification;
     }
 
-    public float getConvergence() {
-        return convergence;
+    public float getCrossoverProbability() {
+        return crossoverProbability;
     }
 
     public Problem getProblem() {
         return problem;
+    }
+
+    public int getPopulationSize() {
+        return initialPopulation.size();
     }
 
     @Override
@@ -50,7 +52,7 @@ public class DETask implements Serializable {
                 "maxIterationsCount=" + maxIterationsCount +
                 ", initialPopulation=" + initialPopulation +
                 ", amplification=" + amplification +
-                ", convergence=" + convergence +
+                ", crossoverProbability=" + crossoverProbability +
                 ", problem=" + problem +
                 '}';
     }

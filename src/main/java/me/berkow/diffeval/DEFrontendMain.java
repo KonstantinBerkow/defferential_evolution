@@ -19,11 +19,9 @@ import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by konstantinberkow on 5/10/17.
- */
+
 public class DEFrontendMain {
-    private static final double PRECISION = 1E-6;
+    public static final double PRECISION = 1E-6;
 
     private static int sCurrentIteration = 0;
     private static int sStaleIterationsCount = 0;
@@ -127,7 +125,7 @@ public class DEFrontendMain {
         }
 
         final MainDETask newTask = new MainDETask(100, result.getPopulation(),
-                result.getAmplification(), result.getConvergence(), 4, result.getProblem());
+                result.getAmplification(), result.getCrossoverProbability(), 4, result.getProblem());
         process(newTask, system, actor);
     }
 

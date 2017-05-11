@@ -11,9 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by konstantinberkow on 5/10/17.
- */
+
 public class DEBackendMain {
 
     public static void main(String[] args) {

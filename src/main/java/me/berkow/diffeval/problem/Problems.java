@@ -1,5 +1,7 @@
 package me.berkow.diffeval.problem;
 
+import me.berkow.diffeval.Util;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -35,11 +37,14 @@ public final class Problems {
         final int size = problem.getSize();
         final double[] result = new double[size];
 
-        for (int i = 0; i < size; i++) {
-            final double min = problem.getLowerConstraints()[i];
-            final double max = problem.getUpperConstraints()[i];
+        final double[] lowerConstraints = problem.getLowerConstraints();
+        final double[] upperConstraints = problem.getUpperConstraints();
 
-            result[i] = min + (max - min) * random.nextDouble();
+        for (int i = 0; i < size; i++) {
+            final double min = lowerConstraints[i];
+            final double max = upperConstraints[i];
+
+            result[i] = Util.nextDouble(min, max, random);
         }
 
         return result;
@@ -53,5 +58,15 @@ public final class Problems {
         }
 
         return population;
+    }
+
+    public static double calculatePopulationValue(Problem problem, List<double[]> population) {
+        double value = 0;
+
+        for (double[] vector : population) {
+            value += problem.calculate(vector);
+        }
+
+        return value / population.size();
     }
 }

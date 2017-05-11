@@ -1,30 +1,29 @@
 package me.berkow.diffeval.message;
 
 import me.berkow.diffeval.problem.Problem;
+import me.berkow.diffeval.problem.Problems;
 
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Created by konstantinberkow on 5/10/17.
- */
+
 public class DEResult implements Serializable {
     private final List<double[]> population;
     private final float amplification;
-    private final float convergence;
+    private final float crossoverProbability;
     private final Problem problem;
 
     private double value = Double.NaN;
 
-    public DEResult(List<double[]> population, float amplification, float convergence, Problem problem) {
+    public DEResult(List<double[]> population, float amplification, float crossoverProbability, Problem problem) {
         this.population = population;
         this.amplification = amplification;
-        this.convergence = convergence;
+        this.crossoverProbability = crossoverProbability;
         this.problem = problem;
     }
 
-    public DEResult(List<double[]> population, float amplification, float convergence, Problem problem, double value) {
-        this(population, amplification, convergence, problem);
+    public DEResult(List<double[]> population, float amplification, float crossoverProbability, Problem problem, double value) {
+        this(population, amplification, crossoverProbability, problem);
         this.value = value;
     }
 
@@ -36,8 +35,8 @@ public class DEResult implements Serializable {
         return amplification;
     }
 
-    public float getConvergence() {
-        return convergence;
+    public float getCrossoverProbability() {
+        return crossoverProbability;
     }
 
     public Problem getProblem() {
@@ -46,12 +45,19 @@ public class DEResult implements Serializable {
 
     public double getValue() {
         if (Double.isNaN(value)) {
-            value = 0;
-            for (double[] vector : population) {
-                value += problem.calculate(vector);
-            }
-            value /= population.size();
+            value = Problems.calculatePopulationValue(problem, population);
         }
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return "DEResult{" +
+                "population=" + population +
+                ", amplification=" + amplification +
+                ", crossoverProbability=" + crossoverProbability +
+                ", problem=" + problem +
+                ", value=" + value +
+                '}';
     }
 }
