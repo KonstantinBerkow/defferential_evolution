@@ -70,9 +70,9 @@ public class DEFrontendMain {
         system.scheduler().scheduleOnce(FiniteDuration.apply(10, TimeUnit.SECONDS), new Runnable() {
             @Override
             public void run() {
-                final Problem problem6 = Problems.createProblemWithConstraints(6,
-                        new double[]{-1.28, -1.28, -1.28, -1.28},
-                        new double[]{1.28, 1.28, 1.28, 1.28}
+                final Problem problem6 = Problems.createProblemWithConstraints(8,
+                        new double[]{-5.12, -5.12, -5.12, -5.12},
+                        new double[]{5.12, 5.12, 5.12, 5.12}
                 );
 
                 final Population population = Problems.createRandomPopulation(40, problem6, new Random());
@@ -113,6 +113,7 @@ public class DEFrontendMain {
         sCurrentIteration++;
 
         system.log().debug("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
+        system.log().debug("average value: {}", result.getValue());
 
         final float amplification = result.getAmplification();
         final float crossoverProbability = result.getCrossoverProbability();
@@ -146,9 +147,7 @@ public class DEFrontendMain {
 
     private static void onCompleted(ActorSystem system, DEResult result, String type) {
         final LoggingAdapter log = system.log();
-
         log.info("Completed due: {}", type);
         log.info("result population: {}", result.getPopulation());
-        log.info("F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
     }
 }
