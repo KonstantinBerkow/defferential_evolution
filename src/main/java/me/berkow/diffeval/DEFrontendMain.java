@@ -47,8 +47,10 @@ public class DEFrontendMain {
         final int splitCount = Util.getIntOrDefault(argsMap, "-splitCount", 10);
         final long randomSeed = Util.getLongOrDefault(argsMap, "-randomSeed", -1);
 
-        final float amplification = Util.getFloatOrDefault(argsMap, "-amplification", 0.9F);
-        final float crossoverProbability = Util.getFloatOrDefault(argsMap, "-crossover", 0.5F);
+        float amplification = Util.getFloatOrDefault(argsMap, "-amplification", 0.9F);
+        amplification = Math.max(0, Math.min(amplification, 2));
+        float crossoverProbability = Util.getFloatOrDefault(argsMap, "-crossover", 0.5F);
+        crossoverProbability = Math.max(0, Math.min(crossoverProbability, 1));
 
         final double[] lowerBounds = Util.getDoubleArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
         final double[] upperBounds = Util.getDoubleArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
@@ -84,18 +86,18 @@ public class DEFrontendMain {
 
         final ActorRef taskActorRef = system.actorOf(taskActorProps, "frontend");
 
+        final Problem problem = Problems.createProblemWithConstraints(problemId, lowerBounds, upperBounds);
+
+        final Random random = randomSeed == -1 ? new Random() : new Random(randomSeed);
+
+        final Population population = Problems.createRandomPopulation(populationSize, problem, random);
+
+        final MainDETask task = new MainDETask(maxIterations, maxStale, population,
+                amplification, crossoverProbability, splitCount, problem);
+
         system.scheduler().scheduleOnce(FiniteDuration.apply(10, TimeUnit.SECONDS), new Runnable() {
             @Override
             public void run() {
-                final Problem problem = Problems.createProblemWithConstraints(problemId, lowerBounds, upperBounds);
-
-                final Random random = randomSeed == -1 ? new Random() : new Random(randomSeed);
-
-                final Population population = Problems.createRandomPopulation(populationSize, problem, random);
-
-                final MainDETask task = new MainDETask(maxIterations, maxStale, population,
-                        amplification, crossoverProbability, splitCount, problem);
-
                 process(task, system, taskActorRef);
             }
         }, system.dispatcher());
