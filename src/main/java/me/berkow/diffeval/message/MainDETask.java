@@ -63,7 +63,7 @@ public class MainDETask implements Serializable {
                 ", initialAmplification=" + initialAmplification +
                 ", initialConvergence=" + initialConvergence +
                 ", splitSize=" + splitSize +
-                ", problem=" + problem +
+                ", getProblem=" + problem +
                 '}';
     }
 }
