@@ -19,18 +19,20 @@ DE with Akka
 # Samples:
 ## Backend nodes
 Backend nodes performs calculation they must be started first, sample usage:
+
 $ java -cp <path to jar> me.berkow.diffeval.DEBackendMain <hostname> <port number>
 
 $ java -cp <path to jar> me.berkow.diffeval.DEBackendMain 196.168.0.108 2552
+
 $ java -cp <path to jar> me.berkow.diffeval.DEBackendMain 196.168.0.108 2553
 
 __Use at least 2552 or 2553 this ports are crucial for cluster__
 
 ##Frontend node
 This node runs control specific calculation on cluster
+
 $ java -cp <path to jar> me.berkow.diffeval.DEFrontendMain <args...>
 
 $ java -cp <path to jar> me.berkow.diffeval.DEFrontendMain -port 2551 -problemId 5 -lowerBounds "-5.12, -5.12, -5.12, -5.12, -5.12, -5.12" -upperBounds "5.12, 5.12, 5.12, 5.12, 5.12, 5.12"
-
 
 #You can run me.berkow.diffeval.Main to see action without arguments
