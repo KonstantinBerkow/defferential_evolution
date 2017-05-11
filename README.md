@@ -33,6 +33,8 @@ This node runs control specific calculation on cluster
 
 $ java -cp <path to jar> me.berkow.diffeval.DEFrontendMain <args...>
 
+Example for problem 5
+
 $ java -cp <path to jar> me.berkow.diffeval.DEFrontendMain -port 2551 -problemId 5 -lowerBounds "-5.12, -5.12, -5.12, -5.12, -5.12, -5.12" -upperBounds "5.12, 5.12, 5.12, 5.12, 5.12, 5.12"
 
 #You can run me.berkow.diffeval.Main to see action without arguments
