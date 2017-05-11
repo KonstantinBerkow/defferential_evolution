@@ -38,6 +38,14 @@ public class MainDEResult implements Serializable {
         return problem;
     }
 
+    public double value() {
+        double value = 0;
+        for (double[] vector : population) {
+            value += problem.calculate(vector);
+        }
+        return value / population.size();
+    }
+
     @Override
     public String toString() {
         return "MainDEResult{" +
@@ -46,13 +54,5 @@ public class MainDEResult implements Serializable {
                 ", convergence=" + convergence +
                 ", problem=" + problem +
                 '}';
-    }
-
-    public double value() {
-        double value = 0;
-        for (double[] vector : population) {
-            value += problem.calculate(vector);
-        }
-        return value / population.size();
     }
 }
