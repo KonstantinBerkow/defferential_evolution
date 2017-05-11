@@ -123,7 +123,7 @@ public class DETaskActor extends AbstractActor {
         for (int i = 0; i < tasks.size(); i++) {
             final DETask splitedTask = tasks.get(i);
 
-            log.debug("F: {}, CR: {}", splitedTask.getAmplification(), splitedTask.getCrossoverProbability());
+            log.debug("new control values F: {}, CR: {}", splitedTask.getAmplification(), splitedTask.getCrossoverProbability());
 
             final Future<DEResult> future = Patterns.ask(backends.get(i % backends.size()), splitedTask, 10000)
                     .transform(new Mapper<Object, DEResult>() {

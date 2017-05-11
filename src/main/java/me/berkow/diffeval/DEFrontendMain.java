@@ -112,6 +112,8 @@ public class DEFrontendMain {
     private static void onResult(ActorSystem system, DEResult result, ActorRef actor) {
         sCurrentIteration++;
 
+        system.log().debug("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
+
         final float amplification = result.getAmplification();
         final float crossoverProbability = result.getCrossoverProbability();
 
