@@ -18,6 +18,12 @@ public class Main {
 
         DEBackendMain.main(new String[]{hostAddress, "2552"});
         DEBackendMain.main(new String[]{hostAddress, "2553"});
-        DEFrontendMain.main(new String[]{"2551"});
+
+        DEFrontendMain.main(new String[]{
+                "-port", "2551",
+                "-problemId", "5",
+                "-lowerBounds", "-5.12, -5.12, -5.12, -5.12, -5.12, -5.12",
+                "-upperBounds", "5.12, 5.12, 5.12, 5.12, 5.12, 5.12"
+        });
     }
 }

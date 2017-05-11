@@ -42,7 +42,7 @@ public class DEFrontendMain {
 
         final int maxIterations = Util.getIntOrDefault(argsMap, "-maxIterations", 100);
         final int maxStale = Util.getIntOrDefault(argsMap, "-maxStale", 10);
-        final int problemId = Util.getIntOrDefault(argsMap, "-problemId", 10);
+        final int problemId = Util.getIntOrDefault(argsMap, "-problemId", 5);
         final int populationSize = Util.getIntOrDefault(argsMap, "-populationSize", 100);
         final int splitCount = Util.getIntOrDefault(argsMap, "-splitCount", 10);
         final long randomSeed = Util.getLongOrDefault(argsMap, "-randomSeed", -1);
