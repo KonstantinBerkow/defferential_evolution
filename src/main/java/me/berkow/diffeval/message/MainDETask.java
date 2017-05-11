@@ -4,7 +4,6 @@ import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created by konstantinberkow on 5/9/17.
@@ -12,40 +11,36 @@ import java.util.List;
 public class MainDETask implements Serializable {
 
     private final int maxIterationsCount;
-    private final Population initialPopulation;
-    private final float initialAmplification;
-    private final float initialConvergence;
+    private final Population population;
+    private final float amplification;
+    private final float crossoverProbability;
     private final int splitSize;
     private final Problem problem;
 
-    public MainDETask(int maxIterationsCount, Population initialPopulation, float initialAmplification,
-                      float initialConvergence, int splitSize, Problem problem) {
+    public MainDETask(int maxIterationsCount, Population population, float amplification,
+                      float crossoverProbability, int splitSize, Problem problem) {
         this.maxIterationsCount = maxIterationsCount;
-        this.initialPopulation = initialPopulation;
-        this.initialAmplification = initialAmplification;
-        this.initialConvergence = initialConvergence;
+        this.population = population;
+        this.amplification = amplification;
+        this.crossoverProbability = crossoverProbability;
         this.splitSize = splitSize;
         this.problem = problem;
-    }
-
-    public int getPopulationSize() {
-        return initialPopulation.size();
     }
 
     public int getMaxIterationsCount() {
         return maxIterationsCount;
     }
 
-    public Population getInitialPopulation() {
-        return initialPopulation;
+    public Population getPopulation() {
+        return population;
     }
 
-    public float getInitialAmplification() {
-        return initialAmplification;
+    public float getAmplification() {
+        return amplification;
     }
 
-    public float getInitialConvergence() {
-        return initialConvergence;
+    public float getCrossoverProbability() {
+        return crossoverProbability;
     }
 
     public int getSplitSize() {
@@ -60,9 +55,9 @@ public class MainDETask implements Serializable {
     public String toString() {
         return "MainDETask{" +
                 "maxIterationsCount=" + maxIterationsCount +
-                ", initialPopulation=" + initialPopulation +
-                ", initialAmplification=" + initialAmplification +
-                ", initialConvergence=" + initialConvergence +
+                ", population=" + population +
+                ", amplification=" + amplification +
+                ", crossoverProbability=" + crossoverProbability +
                 ", splitSize=" + splitSize +
                 ", getProblem=" + problem +
                 '}';

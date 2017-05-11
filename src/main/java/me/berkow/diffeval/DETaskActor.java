@@ -38,13 +38,13 @@ public class DETaskActor extends AbstractActor {
     }
 
     private static DETask createTask(MainDETask task) {
-        return new DETask(task.getMaxIterationsCount(), task.getInitialPopulation(),
-                task.getInitialAmplification(), task.getInitialConvergence(), task.getProblem());
+        return new DETask(task.getMaxIterationsCount(), task.getPopulation(),
+                task.getAmplification(), task.getCrossoverProbability(), task.getProblem());
     }
 
     private static DETask createTask(MainDETask task, Random random) {
-        final float f0 = task.getInitialAmplification();
-        final float c0 = task.getInitialConvergence();
+        final float f0 = task.getAmplification();
+        final float c0 = task.getCrossoverProbability();
 
         final float rawF = f0 + (random.nextFloat() - 0.5F) / 2F;
         final float newF = Math.max(0F, Math.min(rawF, 2F));
@@ -52,7 +52,7 @@ public class DETaskActor extends AbstractActor {
         final float rawC = c0 + (random.nextFloat() - 0.5F) / 4F;
         final float newC = Math.max(0F, Math.min(rawC, 1F));
 
-        return new DETask(task.getMaxIterationsCount(), task.getInitialPopulation(), newF, newC, task.getProblem());
+        return new DETask(task.getMaxIterationsCount(), task.getPopulation(), newF, newC, task.getProblem());
     }
 
     @Override
@@ -109,7 +109,7 @@ public class DETaskActor extends AbstractActor {
 
         final LoggingAdapter log = system.log();
 
-        log.debug("Calculate from: {}, by: {}", task.getInitialPopulation(), this);
+        log.debug("Calculate from: {}, by: {}", task.getPopulation(), this);
 
         final int splitSize = task.getSplitSize();
 

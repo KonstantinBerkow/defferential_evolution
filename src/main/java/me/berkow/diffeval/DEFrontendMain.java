@@ -33,8 +33,19 @@ public class DEFrontendMain {
     private static double sPrevious = Double.NaN;
 
     public static void main(String[] args) {
-        // Override the configuration of the port when specified as program argument
-        final String port = args.length > 0 ? args[0] : "0";
+        final Map<String, String> argsMap = new HashMap<>();
+        for (int i = 0; i < args.length; i += 2) {
+            argsMap.put(args[i], args[i + 1]);
+        }
+
+        final String port = argsMap.containsKey("-port") ? argsMap.get("-port") : "0";
+
+        final int maxIterations = Util.getIntOrDefault(argsMap, "-maxIterations", 100);
+        final int masStale = Util.getIntOrDefault(argsMap, "-maxStale", 10);
+        final int problemId = Util.getIntOrDefault(argsMap, "-problemId", 10);
+        final int populationSize = Util.getIntOrDefault(argsMap, "-populationSize", 100);
+        final int splitCount = Util.getIntOrDefault(argsMap, "-splitCount", 10);
+        final long randomSeed = Util.getLongOrDefault(argsMap, "-randomSeed", -1);
 
         Config config = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + port);
 

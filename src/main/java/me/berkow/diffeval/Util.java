@@ -1,9 +1,6 @@
 package me.berkow.diffeval;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by konstantinberkow on 5/11/17.
@@ -30,5 +27,39 @@ public final class Util {
 
     public static double nextDouble(double min, double max, Random random) {
         return min + (max - min) * random.nextDouble();
+    }
+
+    public static int getIntOrDefault(Map<String, String> map, String key, int defaultValue) {
+        final String value = map.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+
+        int trueValue = defaultValue;
+
+        try {
+            trueValue = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        return trueValue;
+    }
+
+    public static long getLongOrDefault(Map<String, String> map, String key, long defaultValue) {
+        final String value = map.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+
+        long trueValue = defaultValue;
+
+        try {
+            trueValue = Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        return trueValue;
     }
 }
