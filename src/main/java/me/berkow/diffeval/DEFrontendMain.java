@@ -57,7 +57,7 @@ public class DEFrontendMain {
 
         final ActorRef taskActorRef = system.actorOf(taskActorProps, "frontend");
 
-        final MainDETask task = new MainDETask(1, 100, 10, new double[]{-1, -1, -1}, new double[]{1, 1, 1});
+        final MainDETask task = new MainDETask(6, 10, new double[]{-1, -1, -1}, new double[]{1, 1, 1});
 
         system.scheduler().scheduleOnce(FiniteDuration.apply(10, TimeUnit.SECONDS), new Runnable() {
             @Override
