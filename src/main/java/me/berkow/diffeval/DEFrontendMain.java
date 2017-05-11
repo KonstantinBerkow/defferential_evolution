@@ -17,7 +17,10 @@ import scala.concurrent.duration.FiniteDuration;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 
@@ -108,11 +111,14 @@ public class DEFrontendMain {
     private static void onResult(ActorSystem system, DEResult result, ActorRef actor) {
         sCurrentIteration++;
 
-        if (Math.abs(result.getValue() - sPrevious) < PRECISION) {
+        final float amplification = result.getAmplification();
+        final float crossoverProbability = result.getCrossoverProbability();
+
+        if (Math.abs(amplification + crossoverProbability - sPrevious) < PRECISION) {
             sStaleIterationsCount++;
         } else {
             sStaleIterationsCount = 0;
-            sPrevious = result.getValue();
+            sPrevious = amplification + crossoverProbability;
         }
 
         if (sStaleIterationsCount >= 10) {
@@ -125,8 +131,9 @@ public class DEFrontendMain {
             return;
         }
 
+
         final MainDETask newTask = new MainDETask(100, result.getPopulation(),
-                result.getAmplification(), result.getCrossoverProbability(), 4, result.getProblem());
+                amplification, crossoverProbability, 4, result.getProblem());
         process(newTask, system, actor);
     }
 
