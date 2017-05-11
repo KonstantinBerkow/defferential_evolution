@@ -7,6 +7,8 @@ import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import akka.japi.pf.FI;
+import me.berkow.diffeval.message.ConcreteDEResult;
+import me.berkow.diffeval.message.ConcreteDETask;
 
 /**
  * Created by konstantinberkow on 5/10/17.

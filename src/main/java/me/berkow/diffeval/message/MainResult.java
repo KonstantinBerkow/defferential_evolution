@@ -1,4 +1,4 @@
-package me.berkow.diffeval;
+package me.berkow.diffeval.message;
 
 import java.io.Serializable;
 import java.util.Arrays;

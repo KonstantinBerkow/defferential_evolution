@@ -8,6 +8,9 @@ import akka.dispatch.Futures;
 import akka.japi.Function;
 import akka.japi.pf.FI;
 import akka.pattern.Patterns;
+import me.berkow.diffeval.message.ConcreteDETask;
+import me.berkow.diffeval.message.MainDETask;
+import me.berkow.diffeval.message.TaskFailedMsg;
 import scala.concurrent.Future;
 
 import java.util.ArrayList;

@@ -3,18 +3,16 @@ package me.berkow.diffeval;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import scala.concurrent.Future;
+import me.berkow.diffeval.message.MainDETask;
+import me.berkow.diffeval.problem.Problem;
+import me.berkow.diffeval.problem.Problems;
 import scala.concurrent.duration.FiniteDuration;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -57,24 +55,36 @@ public class DEFrontendMain {
 
         final ActorRef taskActorRef = system.actorOf(taskActorProps, "frontend");
 
-        final MainDETask task = new MainDETask(6, 10, new double[]{-1, -1, -1}, new double[]{1, 1, 1});
-
         system.scheduler().scheduleOnce(FiniteDuration.apply(10, TimeUnit.SECONDS), new Runnable() {
             @Override
             public void run() {
-                Future<Object> result = Patterns.ask(taskActorRef, task, 100000);
+                final Problem problem6 = Problems.createProblemWithConstraints(6,
+                        new double[]{-1.28, -1.28, -1.28, -1.28},
+                        new double[]{1.28, 1.28, 1.28, 1.28}
+                );
 
-                result.onComplete(new OnComplete<Object>() {
-                    @Override
-                    public void onComplete(Throwable failure, Object success) throws Throwable {
-                        if (failure != null) {
-                            system.log().error(failure, "Failed to calculate task: {}", task);
-                        } else {
-                            system.log().info("Result of {} calculations is {}", task, success);
-                        }
-                    }
-                }, system.dispatcher());
+                final List<double[]> population = Problems.createRandomPopulation(40, problem6, new Random());
+
+                final MainDETask task = new MainDETask(100, population,
+                        0.9F, 0.5F, 4, problem6);
+
+                process(task, system, taskActorRef);
             }
         }, system.dispatcher());
+    }
+
+    private static void process(MainDETask task, ActorSystem system, ActorRef taskActorRef) {
+//        Future<Object> result = Patterns.ask(taskActorRef, task, 100000);
+//
+//        result.onComplete(new OnComplete<Object>() {
+//            @Override
+//            public void onComplete(Throwable failure, Object success) throws Throwable {
+//                if (failure != null) {
+//                    system.log().error(failure, "Failed to calculate task: {}", task);
+//                } else {
+//                    system.log().info("Result of {} calculations is {}", task, success);
+//                }
+//            }
+//        }, system.dispatcher());
     }
 }
