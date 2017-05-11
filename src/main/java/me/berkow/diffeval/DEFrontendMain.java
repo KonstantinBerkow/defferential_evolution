@@ -7,7 +7,6 @@ import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValue;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
@@ -77,9 +76,5 @@ public class DEFrontendMain {
                 }, system.dispatcher());
             }
         }, system.dispatcher());
-
-        for (Map.Entry<String, ConfigValue> entry : config.entrySet()) {
-            system.log().debug("{}", entry);
-        }
     }
 }
