@@ -122,8 +122,6 @@ public class DECalculationActor extends AbstractActor {
                 .match(DETask.class, new FI.UnitApply<DETask>() {
                     @Override
                     public void apply(DETask task) throws Exception {
-                        context().system().log().debug("Calculate task: {}, by: {}", task, this);
-
                         final Future<DEResult> result = Futures.future(createCalculationCallable(task), context().system().dispatcher());
 
                         Patterns.pipe(result, context().system().dispatcher()).to(sender(), self());

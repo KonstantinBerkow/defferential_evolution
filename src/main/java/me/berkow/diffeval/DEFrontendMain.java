@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.dispatch.OnComplete;
+import akka.event.LoggingAdapter;
 import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -142,7 +143,10 @@ public class DEFrontendMain {
     }
 
     private static void onCompleted(ActorSystem system, DEResult result, String type) {
-        system.log().info("Completed due: {}", type);
-        system.log().info("result: {}", result);
+        final LoggingAdapter log = system.log();
+
+        log.info("Completed due: {}", type);
+        log.info("result population: {}", result.getPopulation());
+        log.info("F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
     }
 }

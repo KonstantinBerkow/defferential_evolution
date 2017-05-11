@@ -6,6 +6,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Terminated;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
+import akka.event.LoggingAdapter;
 import akka.japi.pf.FI;
 import akka.pattern.Patterns;
 import me.berkow.diffeval.message.DEResult;
@@ -106,7 +107,9 @@ public class DETaskActor extends AbstractActor {
     private void calculate(MainDETask task) {
         final ActorSystem system = context().system();
 
-        system.log().debug("Calculate task: {}, by: {}", task, this);
+        final LoggingAdapter log = system.log();
+
+        log.debug("Calculate from: {}, by: {}", task.getInitialPopulation(), this);
 
         final int splitSize = task.getSplitSize();
 
@@ -118,7 +121,11 @@ public class DETaskActor extends AbstractActor {
 
         final List<Future<DEResult>> futures = new ArrayList<>(splitSize);
         for (int i = 0; i < tasks.size(); i++) {
-            final Future<DEResult> future = Patterns.ask(backends.get(i % backends.size()), tasks.get(i), 10000)
+            final DETask splitedTask = tasks.get(i);
+
+            log.debug("F: {}, CR: {}", splitedTask.getAmplification(), splitedTask.getCrossoverProbability());
+
+            final Future<DEResult> future = Patterns.ask(backends.get(i % backends.size()), splitedTask, 10000)
                     .transform(new Mapper<Object, DEResult>() {
                         @Override
                         public DEResult apply(Object parameter) {
