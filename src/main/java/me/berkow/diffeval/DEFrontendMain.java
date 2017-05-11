@@ -109,11 +109,11 @@ public class DEFrontendMain {
     private static void onResult(ActorSystem system, MainDEResult result, ActorRef actor) {
         sCurrentIteration++;
 
-        if (Math.abs(result.value() - sPrevius) < PRECISION) {
+        if (Math.abs(result.getValue() - sPrevius) < PRECISION) {
             sStaleIterationsCount++;
         } else {
             sStaleIterationsCount = 0;
-            sPrevius = result.value();
+            sPrevius = result.getValue();
         }
 
         if (sStaleIterationsCount >= 10) {

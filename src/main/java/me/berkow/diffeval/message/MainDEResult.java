@@ -15,11 +15,18 @@ public class MainDEResult implements Serializable {
     private final float convergence;
     private final Problem problem;
 
-    public MainDEResult(List<double[]> population, float amplification, float convergense, Problem problem) {
-        this.population = population;
+    private double value = Double.NaN;
+
+    public MainDEResult(List<double[]> population, float amplification, float convergence, Problem problem, double value) {
+        this(population, amplification, convergence, problem);
+        this.value = value;
+    }
+
+    public MainDEResult(List<double[]> population, float amplification, float convergence, Problem problem) {
         this.amplification = amplification;
-        this.convergence = convergense;
+        this.convergence = convergence;
         this.problem = problem;
+        this.population = population;
     }
 
     public List<double[]> getPopulation() {
@@ -38,12 +45,16 @@ public class MainDEResult implements Serializable {
         return problem;
     }
 
-    public double value() {
-        double value = 0;
-        for (double[] vector : population) {
-            value += problem.calculate(vector);
+    public double getValue() {
+        if (Double.isNaN(value)) {
+            value = 0;
+            for (double[] vector : population) {
+                value += problem.calculate(vector);
+            }
+            value /= population.size();
         }
-        return value / population.size();
+
+        return value;
     }
 
     @Override

@@ -8,14 +8,12 @@ import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.japi.pf.FI;
 import akka.pattern.Patterns;
-import me.berkow.diffeval.message.DEResult;
-import me.berkow.diffeval.message.DETask;
-import me.berkow.diffeval.message.MainDETask;
-import me.berkow.diffeval.message.TaskFailedMsg;
+import me.berkow.diffeval.message.*;
 import scala.Function1;
 import scala.concurrent.Future;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -140,7 +138,42 @@ public class DETaskActor extends AbstractActor {
 
         final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
 
-        Patterns.pipe(resultsFuture, system.dispatcher()).to(sender(), self());
+        final Future<MainDEResult> resultFuture = resultsFuture.transform(new Mapper<Iterable<DEResult>, MainDEResult>() {
+            @Override
+            public MainDEResult apply(Iterable<DEResult> results) {
+                return processResults(results);
+            }
+        }, new Function1<Throwable, Throwable>() {
+            @Override
+            public Throwable apply(Throwable v1) {
+                return v1;
+            }
+        }, system.dispatcher());
+
+        Patterns.pipe(resultFuture, system.dispatcher()).to(sender(), self());
+    }
+
+    private MainDEResult processResults(Iterable<DEResult> results) {
+        final Iterator<DEResult> iterator = results.iterator();
+        double previousValue = Double.MAX_VALUE;
+        DEResult bestResult = null;
+        while (iterator.hasNext()) {
+            final DEResult result = iterator.next();
+            final double value = result.getValue();
+
+            if (bestResult == null) {
+                previousValue = value;
+                bestResult = result;
+            } else if (value < previousValue) {
+                previousValue = value;
+                bestResult = result;
+            }
+        }
+
+        final MainDEResult result = new MainDEResult(bestResult.getPopulation(), bestResult.getAmplification(),
+                bestResult.getConvergence(), bestResult.getProblem(), bestResult.getValue());
+
+        return result;
     }
 
     @Override
