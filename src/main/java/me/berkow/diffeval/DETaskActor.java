@@ -8,7 +8,10 @@ import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.japi.pf.FI;
 import akka.pattern.Patterns;
-import me.berkow.diffeval.message.*;
+import me.berkow.diffeval.message.DEResult;
+import me.berkow.diffeval.message.DETask;
+import me.berkow.diffeval.message.MainDETask;
+import me.berkow.diffeval.message.TaskFailedMsg;
 import scala.Function1;
 import scala.concurrent.Future;
 
@@ -138,10 +141,10 @@ public class DETaskActor extends AbstractActor {
 
         final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
 
-        final Future<MainDEResult> resultFuture = resultsFuture.transform(new Mapper<Iterable<DEResult>, MainDEResult>() {
+        final Future<DEResult> resultFuture = resultsFuture.transform(new Mapper<Iterable<DEResult>, DEResult>() {
             @Override
-            public MainDEResult apply(Iterable<DEResult> results) {
-                return processResults(results);
+            public DEResult apply(Iterable<DEResult> results) {
+                return selectResult(results);
             }
         }, new Function1<Throwable, Throwable>() {
             @Override
@@ -153,7 +156,7 @@ public class DETaskActor extends AbstractActor {
         Patterns.pipe(resultFuture, system.dispatcher()).to(sender(), self());
     }
 
-    private MainDEResult processResults(Iterable<DEResult> results) {
+    private DEResult selectResult(Iterable<DEResult> results) {
         final Iterator<DEResult> iterator = results.iterator();
         double previousValue = Double.MAX_VALUE;
         DEResult bestResult = null;
@@ -170,10 +173,7 @@ public class DETaskActor extends AbstractActor {
             }
         }
 
-        final MainDEResult result = new MainDEResult(bestResult.getPopulation(), bestResult.getAmplification(),
-                bestResult.getConvergence(), bestResult.getProblem(), bestResult.getValue());
-
-        return result;
+        return bestResult;
     }
 
     @Override

@@ -7,7 +7,7 @@ import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import me.berkow.diffeval.message.MainDEResult;
+import me.berkow.diffeval.message.DEResult;
 import me.berkow.diffeval.message.MainDETask;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
@@ -27,7 +27,7 @@ public class DEFrontendMain {
 
     private static int sCurrentIteration = 0;
     private static int sStaleIterationsCount = 0;
-    private static double sPrevius = Double.NaN;
+    private static double sPrevious = Double.NaN;
 
     public static void main(String[] args) {
         // Override the configuration of the port when specified as program argument
@@ -83,10 +83,10 @@ public class DEFrontendMain {
     }
 
     private static void process(MainDETask task, final ActorSystem system, final ActorRef taskActorRef) {
-        Patterns.ask(taskActorRef, task, 10000).transform(new Function1<Object, MainDEResult>() {
+        Patterns.ask(taskActorRef, task, 10000).transform(new Function1<Object, DEResult>() {
             @Override
-            public MainDEResult apply(Object v1) {
-                return (MainDEResult) v1;
+            public DEResult apply(Object v1) {
+                return (DEResult) v1;
             }
         }, new Function1<Throwable, Throwable>() {
             @Override
@@ -94,9 +94,9 @@ public class DEFrontendMain {
                 return error;
             }
         }, system.dispatcher())
-                .onComplete(new OnComplete<MainDEResult>() {
+                .onComplete(new OnComplete<DEResult>() {
                     @Override
-                    public void onComplete(Throwable failure, MainDEResult success) throws Throwable {
+                    public void onComplete(Throwable failure, DEResult success) throws Throwable {
                         if (failure != null) {
                             onFailure(system, failure);
                         } else {
@@ -106,14 +106,14 @@ public class DEFrontendMain {
                 }, system.dispatcher());
     }
 
-    private static void onResult(ActorSystem system, MainDEResult result, ActorRef actor) {
+    private static void onResult(ActorSystem system, DEResult result, ActorRef actor) {
         sCurrentIteration++;
 
-        if (Math.abs(result.getValue() - sPrevius) < PRECISION) {
+        if (Math.abs(result.getValue() - sPrevious) < PRECISION) {
             sStaleIterationsCount++;
         } else {
             sStaleIterationsCount = 0;
-            sPrevius = result.getValue();
+            sPrevious = result.getValue();
         }
 
         if (sStaleIterationsCount >= 10) {
@@ -135,7 +135,7 @@ public class DEFrontendMain {
         system.log().error(failure, "Failed!");
     }
 
-    private static void onCompleted(ActorSystem system, MainDEResult result, String type) {
+    private static void onCompleted(ActorSystem system, DEResult result, String type) {
         system.log().info("Completed due: {}", type);
         system.log().info("result: {}", result);
     }
