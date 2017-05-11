@@ -97,4 +97,24 @@ public final class Util {
 
         return trueValue;
     }
+
+    public static double[] getDoubleArrayOrThrow(Map<String, String> map, String key, String msg) {
+        final String value = map.get(key);
+        if (value == null) {
+            throw new IllegalStateException(msg);
+        }
+
+        final String[] rawArr = value.split(",");
+        final double[] result = new double[rawArr.length];
+
+        try {
+            for (int i = 0; i < rawArr.length; i++) {
+                result[i] = Double.parseDouble(rawArr[i]);
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return result;
+    }
 }

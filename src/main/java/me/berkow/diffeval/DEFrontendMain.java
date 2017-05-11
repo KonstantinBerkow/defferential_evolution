@@ -41,7 +41,7 @@ public class DEFrontendMain {
         final String port = argsMap.containsKey("-port") ? argsMap.get("-port") : "0";
 
         final int maxIterations = Util.getIntOrDefault(argsMap, "-maxIterations", 100);
-        final int masStale = Util.getIntOrDefault(argsMap, "-maxStale", 10);
+        final int maxStale = Util.getIntOrDefault(argsMap, "-maxStale", 10);
         final int problemId = Util.getIntOrDefault(argsMap, "-problemId", 10);
         final int populationSize = Util.getIntOrDefault(argsMap, "-populationSize", 100);
         final int splitCount = Util.getIntOrDefault(argsMap, "-splitCount", 10);
@@ -49,6 +49,9 @@ public class DEFrontendMain {
 
         final float amplification = Util.getFloatOrDefault(argsMap, "-amplification", 0.9F);
         final float crossoverProbability = Util.getFloatOrDefault(argsMap, "-crossover", 0.5F);
+
+        final double[] lowerBounds = Util.getDoubleArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
+        final double[] upperBounds = Util.getDoubleArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
 
         Config config = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + port);
 
@@ -84,16 +87,13 @@ public class DEFrontendMain {
         system.scheduler().scheduleOnce(FiniteDuration.apply(10, TimeUnit.SECONDS), new Runnable() {
             @Override
             public void run() {
-                final Problem problem = Problems.createProblemWithConstraints(problemId,
-                        new double[]{-5.12, -5.12, -5.12, -5.12},
-                        new double[]{5.12, 5.12, 5.12, 5.12}
-                );
+                final Problem problem = Problems.createProblemWithConstraints(problemId, lowerBounds, upperBounds);
 
                 final Random random = randomSeed == -1 ? new Random() : new Random(randomSeed);
 
                 final Population population = Problems.createRandomPopulation(populationSize, problem, random);
 
-                final MainDETask task = new MainDETask(maxIterations, population,
+                final MainDETask task = new MainDETask(maxIterations, maxStale, population,
                         amplification, crossoverProbability, splitCount, problem);
 
                 process(task, system, taskActorRef);
@@ -101,7 +101,7 @@ public class DEFrontendMain {
         }, system.dispatcher());
     }
 
-    private static void process(MainDETask task, final ActorSystem system, final ActorRef taskActorRef) {
+    private static void process(final MainDETask task, final ActorSystem system, final ActorRef taskActorRef) {
         Patterns.ask(taskActorRef, task, 10000).transform(new Function1<Object, DEResult>() {
             @Override
             public DEResult apply(Object v1) {
@@ -119,13 +119,13 @@ public class DEFrontendMain {
                         if (failure != null) {
                             onFailure(system, failure);
                         } else {
-                            onResult(system, success, taskActorRef);
+                            onResult(task, system, success, taskActorRef);
                         }
                     }
                 }, system.dispatcher());
     }
 
-    private static void onResult(ActorSystem system, DEResult result, ActorRef actor) {
+    private static void onResult(MainDETask task, ActorSystem system, DEResult result, ActorRef actor) {
         sCurrentIteration++;
 
         system.log().debug("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
@@ -141,19 +141,19 @@ public class DEFrontendMain {
             sPrevious = amplification + crossoverProbability;
         }
 
-        if (sStaleIterationsCount >= 10) {
+        if (sStaleIterationsCount >= task.getMaxStaleCount()) {
             onCompleted(system, result, "stale");
             return;
         }
 
-        if (sCurrentIteration >= 100) {
+        if (sCurrentIteration >= task.getMaxIterationsCount()) {
             onCompleted(system, result, "max_iterations");
             return;
         }
 
 
-        final MainDETask newTask = new MainDETask(100, result.getPopulation(),
-                amplification, crossoverProbability, 4, result.getProblem());
+        final MainDETask newTask = new MainDETask(task.getMaxIterationsCount(), task.getMaxStaleCount(),
+                result.getPopulation(), amplification, crossoverProbability, task.getSplitSize(), result.getProblem());
         process(newTask, system, actor);
     }
 

@@ -11,15 +11,17 @@ import java.io.Serializable;
 public class MainDETask implements Serializable {
 
     private final int maxIterationsCount;
+    private final int maxStaleCount;
     private final Population population;
     private final float amplification;
     private final float crossoverProbability;
     private final int splitSize;
     private final Problem problem;
 
-    public MainDETask(int maxIterationsCount, Population population, float amplification,
+    public MainDETask(int maxIterationsCount, int maxStaleCount, Population population, float amplification,
                       float crossoverProbability, int splitSize, Problem problem) {
         this.maxIterationsCount = maxIterationsCount;
+        this.maxStaleCount = maxStaleCount;
         this.population = population;
         this.amplification = amplification;
         this.crossoverProbability = crossoverProbability;
@@ -29,6 +31,10 @@ public class MainDETask implements Serializable {
 
     public int getMaxIterationsCount() {
         return maxIterationsCount;
+    }
+
+    public int getMaxStaleCount() {
+        return maxStaleCount;
     }
 
     public Population getPopulation() {
@@ -55,11 +61,12 @@ public class MainDETask implements Serializable {
     public String toString() {
         return "MainDETask{" +
                 "maxIterationsCount=" + maxIterationsCount +
+                ", maxStaleCount=" + maxStaleCount +
                 ", population=" + population +
                 ", amplification=" + amplification +
                 ", crossoverProbability=" + crossoverProbability +
                 ", splitSize=" + splitSize +
-                ", getProblem=" + problem +
+                ", problem=" + problem +
                 '}';
     }
 }
