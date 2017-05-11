@@ -29,7 +29,7 @@ public final class Problems {
                     }
                 };
             default:
-                throw new IllegalArgumentException("Unknown getProblem id: " + problemId);
+                throw new IllegalArgumentException("Unknown problem id: " + problemId);
         }
     }
 
