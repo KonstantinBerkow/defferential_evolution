@@ -53,7 +53,7 @@ public class DEFrontendMain {
 
         final ActorSystem system = ActorSystem.create("DifferentialEvolution", config);
 
-        final Props taskActorProps = Props.create(DifferentialEvolutionTaskActor.class, port);
+        final Props taskActorProps = Props.create(DETaskActor.class, port);
 
         final ActorRef taskActorRef = system.actorOf(taskActorProps, "frontend");
 

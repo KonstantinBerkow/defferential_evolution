@@ -66,7 +66,7 @@ public class DECalculationActor extends AbstractActor {
     private void register(Member member) {
         if (member.hasRole("frontend")) {
             context().system().log().debug("{} try to register {}", this, member);
-            context().actorSelection(member.address() + "/user/frontend").tell(DifferentialEvolutionTaskActor.BACKEND_REGISTRATION, self());
+            context().actorSelection(member.address() + "/user/frontend").tell(DETaskActor.BACKEND_REGISTRATION, self());
         }
     }
 

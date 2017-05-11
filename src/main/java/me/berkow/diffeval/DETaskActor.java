@@ -17,13 +17,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by konstantinberkow on 5/8/17.
  */
-public class DifferentialEvolutionTaskActor extends AbstractActor {
+public class DETaskActor extends AbstractActor {
     public static final String BACKEND_REGISTRATION = "register";
 
     private final String port;
     private final List<ActorRef> backends;
 
-    public DifferentialEvolutionTaskActor(String port) {
+    public DETaskActor(String port) {
         this.port = port;
         backends = new ArrayList<>();
     }
@@ -44,7 +44,7 @@ public class DifferentialEvolutionTaskActor extends AbstractActor {
                 }, new FI.UnitApply<MainDETask>() {
                     @Override
                     public void apply(MainDETask task) throws Exception {
-                        context().system().log().debug("{} could not calculate {}", DifferentialEvolutionTaskActor.this, task);
+                        context().system().log().debug("{} could not calculate {}", DETaskActor.this, task);
                         TaskFailedMsg message = new TaskFailedMsg("Service unavailable, try again later", task);
                         sender().tell(message, sender());
                     }
@@ -52,7 +52,7 @@ public class DifferentialEvolutionTaskActor extends AbstractActor {
                 .match(MainDETask.class, new FI.UnitApply<MainDETask>() {
                     @Override
                     public void apply(MainDETask task) throws Exception {
-                        context().system().log().debug("{} received task {}", DifferentialEvolutionTaskActor.this, task);
+                        context().system().log().debug("{} received task {}", DETaskActor.this, task);
                         calculate(task);
                     }
                 })
@@ -63,13 +63,13 @@ public class DifferentialEvolutionTaskActor extends AbstractActor {
                         context().watch(sender);
                         backends.add(sender);
 
-                        context().system().log().debug("{} received registration of {}", DifferentialEvolutionTaskActor.this, sender);
+                        context().system().log().debug("{} received registration of {}", DETaskActor.this, sender);
                     }
                 })
                 .match(Terminated.class, new FI.UnitApply<Terminated>() {
                     @Override
                     public void apply(Terminated terminated) throws Exception {
-                        context().system().log().debug("{} received termination of {}", DifferentialEvolutionTaskActor.this, terminated.getActor());
+                        context().system().log().debug("{} received termination of {}", DETaskActor.this, terminated.getActor());
                         backends.remove(terminated.getActor());
                     }
                 })
@@ -102,7 +102,7 @@ public class DifferentialEvolutionTaskActor extends AbstractActor {
 
     @Override
     public String toString() {
-        return "DifferentialEvolutionTaskActor{" +
+        return "DETaskActor{" +
                 "port='" + port + '\'' +
                 ", backends=" + backends +
                 '}';
