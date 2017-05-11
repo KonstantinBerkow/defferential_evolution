@@ -7,9 +7,15 @@ import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValue;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,9 +26,31 @@ public class DEFrontendMain {
     public static void main(String[] args) {
         // Override the configuration of the port when specified as program argument
         final String port = args.length > 0 ? args[0] : "0";
-        final Config config = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + port).
-                withFallback(ConfigFactory.parseString("akka.cluster.roles = [frontend]")).
-                withFallback(ConfigFactory.load());
+
+        Config config = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + port);
+
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+
+            String hostAddress = localHost.getHostAddress();
+
+            Map<String, Object> map = new HashMap<>();
+
+            map.put("akka.remote.netty.tcp.hostname", hostAddress);
+            map.put("akka.cluster.seed-nodes", Arrays.asList(
+                    "akka.tcp://DifferentialEvolution@" + hostAddress + ":2552",
+                    "akka.tcp://DifferentialEvolution@" + hostAddress + ":2553"
+            ));
+
+            config = config.withFallback(ConfigFactory.parseMap(map));
+
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        config = config
+                .withFallback(ConfigFactory.parseString("akka.cluster.roles = [frontend]"))
+                .withFallback(ConfigFactory.load());
 
         final ActorSystem system = ActorSystem.create("DifferentialEvolution", config);
 
@@ -49,5 +77,9 @@ public class DEFrontendMain {
                 }, system.dispatcher());
             }
         }, system.dispatcher());
+
+        for (Map.Entry<String, ConfigValue> entry : config.entrySet()) {
+            system.log().debug("{}", entry);
+        }
     }
 }
