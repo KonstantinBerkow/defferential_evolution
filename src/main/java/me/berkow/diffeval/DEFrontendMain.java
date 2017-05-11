@@ -47,6 +47,9 @@ public class DEFrontendMain {
         final int splitCount = Util.getIntOrDefault(argsMap, "-splitCount", 10);
         final long randomSeed = Util.getLongOrDefault(argsMap, "-randomSeed", -1);
 
+        final float amplification = Util.getFloatOrDefault(argsMap, "-amplification", 0.9F);
+        final float crossoverProbability = Util.getFloatOrDefault(argsMap, "-crossover", 0.5F);
+
         Config config = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + port);
 
         try {
@@ -81,15 +84,17 @@ public class DEFrontendMain {
         system.scheduler().scheduleOnce(FiniteDuration.apply(10, TimeUnit.SECONDS), new Runnable() {
             @Override
             public void run() {
-                final Problem problem6 = Problems.createProblemWithConstraints(8,
+                final Problem problem = Problems.createProblemWithConstraints(problemId,
                         new double[]{-5.12, -5.12, -5.12, -5.12},
                         new double[]{5.12, 5.12, 5.12, 5.12}
                 );
 
-                final Population population = Problems.createRandomPopulation(40, problem6, new Random());
+                final Random random = randomSeed == -1 ? new Random() : new Random(randomSeed);
 
-                final MainDETask task = new MainDETask(100, population,
-                        0.9F, 0.5F, 4, problem6);
+                final Population population = Problems.createRandomPopulation(populationSize, problem, random);
+
+                final MainDETask task = new MainDETask(maxIterations, population,
+                        amplification, crossoverProbability, splitCount, problem);
 
                 process(task, system, taskActorRef);
             }
