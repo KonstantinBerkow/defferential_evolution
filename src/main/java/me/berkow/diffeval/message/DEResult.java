@@ -5,5 +5,5 @@ import java.io.Serializable;
 /**
  * Created by konstantinberkow on 5/10/17.
  */
-public class ConcreteDEResult implements Serializable {
+public class DEResult implements Serializable {
 }

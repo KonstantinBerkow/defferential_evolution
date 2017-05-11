@@ -7,8 +7,8 @@ import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import akka.japi.pf.FI;
-import me.berkow.diffeval.message.ConcreteDEResult;
-import me.berkow.diffeval.message.ConcreteDETask;
+import me.berkow.diffeval.message.DEResult;
+import me.berkow.diffeval.message.DETask;
 
 /**
  * Created by konstantinberkow on 5/10/17.
@@ -35,9 +35,9 @@ public class DECalculationActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(ConcreteDETask.class, new FI.UnitApply<ConcreteDETask>() {
+                .match(DETask.class, new FI.UnitApply<DETask>() {
                     @Override
-                    public void apply(ConcreteDETask task) throws Exception {
+                    public void apply(DETask task) throws Exception {
                         calculate(task);
                     }
                 })
@@ -72,9 +72,9 @@ public class DECalculationActor extends AbstractActor {
         }
     }
 
-    private void calculate(ConcreteDETask task) {
+    private void calculate(DETask task) {
         context().system().log().debug("Calculate task: {}, by: {}", task, this);
-        final ConcreteDEResult result = new ConcreteDEResult();
+        final DEResult result = new DEResult();
         sender().tell(result, self());
     }
 

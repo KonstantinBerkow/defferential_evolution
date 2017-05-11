@@ -5,17 +5,19 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Terminated;
 import akka.dispatch.Futures;
-import akka.japi.Function;
+import akka.dispatch.Mapper;
 import akka.japi.pf.FI;
 import akka.pattern.Patterns;
-import me.berkow.diffeval.message.ConcreteDETask;
+import me.berkow.diffeval.message.DEResult;
+import me.berkow.diffeval.message.DETask;
 import me.berkow.diffeval.message.MainDETask;
 import me.berkow.diffeval.message.TaskFailedMsg;
+import scala.Function1;
 import scala.concurrent.Future;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Random;
 
 /**
  * Created by konstantinberkow on 5/8/17.
@@ -25,10 +27,30 @@ public class DETaskActor extends AbstractActor {
 
     private final String port;
     private final List<ActorRef> backends;
+    private final Random random;
 
     public DETaskActor(String port) {
         this.port = port;
         backends = new ArrayList<>();
+        random = new Random();
+    }
+
+    private static DETask createTask(MainDETask task) {
+        return new DETask(task.getMaxIterationsCount(), task.getInitialPopulation(),
+                task.getInitialAmplification(), task.getInitialConvergence(), task.getProblem());
+    }
+
+    private static DETask createTask(MainDETask task, Random random) {
+        final float f0 = task.getInitialAmplification();
+        final float c0 = task.getInitialConvergence();
+
+        final float rawF = f0 + (random.nextFloat() - 1F) / 2F;
+        final float newF = Math.max(0F, Math.min(rawF, 2F));
+
+        final float rawC = c0 + (random.nextFloat() - 1F) / 4F;
+        final float newC = Math.max(0F, Math.min(rawC, 1F));
+
+        return new DETask(task.getMaxIterationsCount(), task.getInitialPopulation(), newF, newC, task.getProblem());
     }
 
     @Override
@@ -90,17 +112,35 @@ public class DETaskActor extends AbstractActor {
 
         system.log().debug("Calculate task: {}, by: {}", task, this);
 
-        final AtomicInteger counter = new AtomicInteger();
+        final int splitSize = task.getSplitSize();
 
-        Future<Iterable<Object>> results = Futures.traverse(backends, new Function<ActorRef, Future<Object>>() {
-            @Override
-            public Future<Object> apply(ActorRef workerActorRef) throws Exception {
-                ConcreteDETask deTask = new ConcreteDETask(counter.getAndIncrement());
-                return Patterns.ask(workerActorRef, deTask, 10000);
-            }
-        }, system.dispatcher());
+        final List<DETask> tasks = new ArrayList<>(splitSize);
+        tasks.add(createTask(task));
+        for (int i = 1; i < splitSize; i++) {
+            tasks.add(createTask(task, random));
+        }
 
-        Patterns.pipe(results, system.dispatcher()).to(sender(), self());
+        final List<Future<DEResult>> futures = new ArrayList<>(splitSize);
+        for (int i = 0; i < tasks.size(); i++) {
+            final Future<DEResult> future = Patterns.ask(backends.get(i % backends.size()), tasks.get(i), 10000)
+                    .transform(new Mapper<Object, DEResult>() {
+                        @Override
+                        public DEResult apply(Object parameter) {
+                            return (DEResult) parameter;
+                        }
+                    }, new Function1<Throwable, Throwable>() {
+                        @Override
+                        public Throwable apply(Throwable v1) {
+                            return v1;
+                        }
+                    }, system.dispatcher());
+
+            futures.add(future);
+        }
+
+        final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
+
+        Patterns.pipe(resultsFuture, system.dispatcher()).to(sender(), self());
     }
 
     @Override

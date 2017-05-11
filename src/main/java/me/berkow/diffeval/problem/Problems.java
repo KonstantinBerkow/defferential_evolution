@@ -7,6 +7,7 @@ import java.util.Random;
 /**
  * Created by konstantinberkow on 5/11/17.
  */
+@SuppressWarnings("SameParameterValue")
 public final class Problems {
 
     public static Problem createProblemWithConstraints(int problemId, double[] lowerBounds, double[] upperBounds) {
