@@ -41,4 +41,8 @@ public class Member implements Serializable {
     public String toString() {
         return Arrays.toString(innerVector);
     }
+
+    public double[] toArray() {
+        return innerVector;
+    }
 }
