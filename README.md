@@ -2,11 +2,11 @@
 DE with Akka
 
 # Arguments for DEFrontendMain:
-* Mandatory:
+## Mandatory:
 1. -port - specify port on which Actor should listen (integer)
 2. -lowerBounds - specify lower bounds for solution (decimals separated by ',')
 3. -upperBounds - specify upper bounds for solution (decimals separated by ',')
-* Optional:
+## Optional:
 1. -maxIterations - specify max iterations limit (integer)
 2. -maxStale - specify max "stable" iterations (changes of solution value lower then precision) limit (integer)
 3. -problemId - specify id of calculation task (from 1 to 10)
