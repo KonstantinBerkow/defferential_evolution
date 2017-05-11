@@ -70,7 +70,6 @@ public class DETaskActor extends AbstractActor {
                 }, new FI.UnitApply<MainDETask>() {
                     @Override
                     public void apply(MainDETask task) throws Exception {
-                        context().system().log().debug("{} could not calculate {}", DETaskActor.this, task);
                         TaskFailedMsg message = new TaskFailedMsg("Service unavailable, try again later", task);
                         sender().tell(message, sender());
                     }
@@ -78,7 +77,6 @@ public class DETaskActor extends AbstractActor {
                 .match(MainDETask.class, new FI.UnitApply<MainDETask>() {
                     @Override
                     public void apply(MainDETask task) throws Exception {
-                        context().system().log().debug("{} received task {}", DETaskActor.this, task);
                         calculate(task);
                     }
                 })
@@ -88,14 +86,11 @@ public class DETaskActor extends AbstractActor {
                         final ActorRef sender = sender();
                         context().watch(sender);
                         backends.add(sender);
-
-                        context().system().log().debug("{} received registration of {}", DETaskActor.this, sender);
                     }
                 })
                 .match(Terminated.class, new FI.UnitApply<Terminated>() {
                     @Override
                     public void apply(Terminated terminated) throws Exception {
-                        context().system().log().debug("{} received termination of {}", DETaskActor.this, terminated.getActor());
                         backends.remove(terminated.getActor());
                     }
                 })
