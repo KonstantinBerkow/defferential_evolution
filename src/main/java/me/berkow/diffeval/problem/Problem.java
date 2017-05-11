@@ -28,7 +28,7 @@ public abstract class Problem implements Serializable {
         return lowerConstraints.length;
     }
 
-    public abstract double calculate(double[] vector);
+    public abstract double calculate(Member vector);
 
     @Override
     public String toString() {

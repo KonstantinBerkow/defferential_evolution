@@ -9,6 +9,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import me.berkow.diffeval.message.DEResult;
 import me.berkow.diffeval.message.MainDETask;
+import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
 import scala.Function1;
@@ -70,7 +71,7 @@ public class DEFrontendMain {
                         new double[]{1.28, 1.28, 1.28, 1.28}
                 );
 
-                final List<double[]> population = Problems.createRandomPopulation(40, problem6, new Random());
+                final Population population = Problems.createRandomPopulation(40, problem6, new Random());
 
                 final MainDETask task = new MainDETask(100, population,
                         0.9F, 0.5F, 4, problem6);

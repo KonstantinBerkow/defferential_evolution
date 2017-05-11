@@ -1,20 +1,20 @@
 package me.berkow.diffeval.message;
 
+import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 
 import java.io.Serializable;
-import java.util.List;
 
 
 public class DETask implements Serializable {
 
     private final int maxIterationsCount;
-    private final List<double[]> initialPopulation;
+    private final Population initialPopulation;
     private final float amplification;
     private final float crossoverProbability;
     private final Problem problem;
 
-    public DETask(int maxIterationsCount, List<double[]> initialPopulation, float amplification, float convergence, Problem problem) {
+    public DETask(int maxIterationsCount, Population initialPopulation, float amplification, float convergence, Problem problem) {
         this.maxIterationsCount = maxIterationsCount;
         this.initialPopulation = initialPopulation;
         this.amplification = amplification;
@@ -26,7 +26,7 @@ public class DETask implements Serializable {
         return maxIterationsCount;
     }
 
-    public List<double[]> getInitialPopulation() {
+    public Population getInitialPopulation() {
         return initialPopulation;
     }
 

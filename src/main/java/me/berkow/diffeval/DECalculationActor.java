@@ -11,6 +11,7 @@ import akka.japi.pf.FI;
 import akka.pattern.Patterns;
 import me.berkow.diffeval.message.DEResult;
 import me.berkow.diffeval.message.DETask;
+import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
 import scala.concurrent.Future;
@@ -31,8 +32,8 @@ public class DECalculationActor extends AbstractActor {
         this.port = port;
     }
 
-    private static List<double[]> createNewGeneration(final List<double[]> previousVectors, DETask task, Random random) {
-        final List<double[]> newVectors = new ArrayList<>(task.getPopulationSize());
+    private static Population createNewGeneration(final Population previousGeneration, DETask task, Random random) {
+        final List<me.berkow.diffeval.problem.Member> newVectors = new ArrayList<>(task.getPopulationSize());
 
         final Problem problem = task.getProblem();
         final int size = problem.getSize();
@@ -40,21 +41,22 @@ public class DECalculationActor extends AbstractActor {
         final float crossoverProbability = task.getCrossoverProbability();
         final float amplification = task.getAmplification();
 
+        final me.berkow.diffeval.problem.Member[] members = previousGeneration.getMembers();
 
         final double[] lowerConstraints = problem.getLowerConstraints();
         final double[] upperConstraints = problem.getUpperConstraints();
 
         for (int i = 0; i < task.getPopulationSize(); i++) {
-            final double[] oldVector = previousVectors.get(i);
-            final int[] indexes = Util.selectIndexes(0, oldVector.length, i, 3, random);
+            final me.berkow.diffeval.problem.Member oldVector = members[i];
+            final int[] indexes = Util.selectIndexes(0, oldVector.size(), i, 3, random);
             final int mandatoryIndex = random.nextInt(size);
             final double[] newVector = new double[size];
 
             for (int j = 0; j < size; j++) {
                 if (mandatoryIndex == j || random.nextDouble() < crossoverProbability) {
-                    newVector[j] = previousVectors.get(indexes[0])[j] + amplification * (previousVectors.get(indexes[1])[j] - previousVectors.get(indexes[2])[j]);
+                    newVector[j] = members[indexes[0]].get(j) + amplification * (members[indexes[1]].get(j) - members[indexes[2]].get(j));
                 } else {
-                    newVector[j] = oldVector[j];
+                    newVector[j] = oldVector.get(j);
                 }
 
                 final double min = lowerConstraints[j];
@@ -65,23 +67,25 @@ public class DECalculationActor extends AbstractActor {
                 }
             }
 
-            if (problem.calculate(newVector) < problem.calculate(oldVector)) {
-                newVectors.add(newVector);
+            final me.berkow.diffeval.problem.Member member = new me.berkow.diffeval.problem.Member(newVector);
+
+            if (problem.calculate(member) < problem.calculate(oldVector)) {
+                newVectors.add(member);
             } else {
                 newVectors.add(oldVector);
             }
         }
 
-        return newVectors;
+        return new Population(newVectors.toArray(new me.berkow.diffeval.problem.Member[0]));
     }
 
     private static DEResult de(DETask task, Random random) {
-        List<double[]> previousVectors = task.getInitialPopulation();
+        Population previousGeneration = task.getInitialPopulation();
         final Problem problem = task.getProblem();
         int staleIterationsCount = 0;
         double previousValue = Double.NaN;
         for (int generation = 0; generation < task.getMaxIterationsCount(); generation++) {
-            final List<double[]> newVectors = createNewGeneration(previousVectors, task, random);
+            final Population newVectors = createNewGeneration(previousGeneration, task, random);
 
             final double newValue = Problems.calculatePopulationValue(problem, newVectors);
 
@@ -95,11 +99,11 @@ public class DECalculationActor extends AbstractActor {
                 return new DEResult(newVectors, task.getAmplification(), task.getCrossoverProbability(), task.getProblem(), newValue);
             }
 
-            previousVectors = newVectors;
+            previousGeneration = newVectors;
             previousValue = newValue;
         }
 
-        return new DEResult(previousVectors, task.getAmplification(), task.getCrossoverProbability(), task.getProblem(), previousValue);
+        return new DEResult(previousGeneration, task.getAmplification(), task.getCrossoverProbability(), task.getProblem(), previousValue);
     }
 
     @Override

@@ -17,11 +17,11 @@ public final class Problems {
             case 6:
                 return new Problem(lowerBounds, upperBounds) {
                     @Override
-                    public double calculate(double[] vector) {
+                    public double calculate(Member vector) {
                         double sum = 0;
 
-                        for (int i = 0; i < vector.length; i++) {
-                            double x = vector[i];
+                        for (int i = 0; i < vector.size(); i++) {
+                            double x = vector.get(i);
                             sum += (i + 1) * x * x * x * x;
                         }
 
@@ -33,7 +33,7 @@ public final class Problems {
         }
     }
 
-    public static double[] createRandomVector(Problem problem, Random random) {
+    public static Member createRandomVector(Problem problem, Random random) {
         final int size = problem.getSize();
         final double[] result = new double[size];
 
@@ -47,23 +47,25 @@ public final class Problems {
             result[i] = Util.nextDouble(min, max, random);
         }
 
-        return result;
+        return new Member(result);
     }
 
-    public static List<double[]> createRandomPopulation(int populationSize, Problem problem, Random random) {
-        final List<double[]> population = new ArrayList<>(populationSize);
+    public static Population createRandomPopulation(int populationSize, Problem problem, Random random) {
+        final List<Member> population = new ArrayList<>(populationSize);
 
         for (int i = 0; i < populationSize; i++) {
             population.add(createRandomVector(problem, random));
         }
 
-        return population;
+        return new Population(population.toArray(new Member[0]));
     }
 
-    public static double calculatePopulationValue(Problem problem, List<double[]> population) {
+    public static double calculatePopulationValue(Problem problem, Population population) {
         double value = 0;
 
-        for (double[] vector : population) {
+        final Member[] members = population.getMembers();
+
+        for (Member vector : members) {
             value += problem.calculate(vector);
         }
 

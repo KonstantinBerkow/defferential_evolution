@@ -1,5 +1,6 @@
 package me.berkow.diffeval.message;
 
+import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 
 import java.io.Serializable;
@@ -11,13 +12,13 @@ import java.util.List;
 public class MainDETask implements Serializable {
 
     private final int maxIterationsCount;
-    private final List<double[]> initialPopulation;
+    private final Population initialPopulation;
     private final float initialAmplification;
     private final float initialConvergence;
     private final int splitSize;
     private final Problem problem;
 
-    public MainDETask(int maxIterationsCount, List<double[]> initialPopulation, float initialAmplification,
+    public MainDETask(int maxIterationsCount, Population initialPopulation, float initialAmplification,
                       float initialConvergence, int splitSize, Problem problem) {
         this.maxIterationsCount = maxIterationsCount;
         this.initialPopulation = initialPopulation;
@@ -35,7 +36,7 @@ public class MainDETask implements Serializable {
         return maxIterationsCount;
     }
 
-    public List<double[]> getInitialPopulation() {
+    public Population getInitialPopulation() {
         return initialPopulation;
     }
 

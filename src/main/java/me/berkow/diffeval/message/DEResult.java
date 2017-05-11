@@ -1,33 +1,33 @@
 package me.berkow.diffeval.message;
 
+import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
 
 import java.io.Serializable;
-import java.util.List;
 
 
 public class DEResult implements Serializable {
-    private final List<double[]> population;
+    private final Population population;
     private final float amplification;
     private final float crossoverProbability;
     private final Problem problem;
 
     private double value = Double.NaN;
 
-    public DEResult(List<double[]> population, float amplification, float crossoverProbability, Problem problem) {
+    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem) {
         this.population = population;
         this.amplification = amplification;
         this.crossoverProbability = crossoverProbability;
         this.problem = problem;
     }
 
-    public DEResult(List<double[]> population, float amplification, float crossoverProbability, Problem problem, double value) {
+    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem, double value) {
         this(population, amplification, crossoverProbability, problem);
         this.value = value;
     }
 
-    public List<double[]> getPopulation() {
+    public Population getPopulation() {
         return population;
     }
 
