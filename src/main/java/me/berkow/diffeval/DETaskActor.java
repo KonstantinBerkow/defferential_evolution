@@ -46,10 +46,10 @@ public class DETaskActor extends AbstractActor {
         final float f0 = task.getInitialAmplification();
         final float c0 = task.getInitialConvergence();
 
-        final float rawF = f0 + (random.nextFloat() - 1F) / 2F;
+        final float rawF = f0 + (random.nextFloat() - 0.5F) / 2F;
         final float newF = Math.max(0F, Math.min(rawF, 2F));
 
-        final float rawC = c0 + (random.nextFloat() - 1F) / 4F;
+        final float rawC = c0 + (random.nextFloat() - 0.5F) / 4F;
         final float newC = Math.max(0F, Math.min(rawC, 1F));
 
         return new DETask(task.getMaxIterationsCount(), task.getInitialPopulation(), newF, newC, task.getProblem());
