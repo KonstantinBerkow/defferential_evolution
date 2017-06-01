@@ -13,13 +13,16 @@ public class DETask implements Serializable {
     private final float amplification;
     private final float crossoverProbability;
     private final Problem problem;
+    private final double precision;
 
-    public DETask(int maxIterationsCount, Population initialPopulation, float amplification, float convergence, Problem problem) {
+    public DETask(int maxIterationsCount, Population initialPopulation, float amplification, float convergence,
+                  Problem problem, double precision) {
         this.maxIterationsCount = maxIterationsCount;
         this.initialPopulation = initialPopulation;
         this.amplification = amplification;
         this.crossoverProbability = convergence;
         this.problem = problem;
+        this.precision = precision;
     }
 
     public int getMaxIterationsCount() {
@@ -46,6 +49,10 @@ public class DETask implements Serializable {
         return initialPopulation.size();
     }
 
+    public double getPrecision() {
+        return precision;
+    }
+
     @Override
     public String toString() {
         return "DETask{" +
@@ -54,6 +61,7 @@ public class DETask implements Serializable {
                 ", amplification=" + amplification +
                 ", crossoverProbability=" + crossoverProbability +
                 ", problem=" + problem +
+                ", precision=" + precision +
                 '}';
     }
 }

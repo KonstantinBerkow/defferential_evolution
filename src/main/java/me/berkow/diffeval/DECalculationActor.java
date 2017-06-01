@@ -89,7 +89,7 @@ public class DECalculationActor extends AbstractActor {
 
             final double newValue = Problems.calculatePopulationValue(problem, newVectors);
 
-            if (Math.abs(newValue - previousValue) < DEFrontendMain.PRECISION) {
+            if (Math.abs(newValue - previousValue) < task.getPrecision()) {
                 staleIterationsCount++;
             } else {
                 staleIterationsCount = 0;

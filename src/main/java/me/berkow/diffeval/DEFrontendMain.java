@@ -49,11 +49,14 @@ public class DEFrontendMain {
 
         float amplification = Util.getFloatOrDefault(argsMap, "-amplification", 0.9F);
         amplification = Math.max(0, Math.min(amplification, 2));
+
         float crossoverProbability = Util.getFloatOrDefault(argsMap, "-crossover", 0.5F);
         crossoverProbability = Math.max(0, Math.min(crossoverProbability, 1));
 
         final double[] lowerBounds = Util.getDoubleArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
         final double[] upperBounds = Util.getDoubleArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
+
+        final double precision = Util.getDoubleOrDefault(argsMap, "-precision", 1e-6);
 
         Config config = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + port);
 
@@ -93,7 +96,7 @@ public class DEFrontendMain {
         final Population population = Problems.createRandomPopulation(populationSize, problem, random);
 
         final MainDETask task = new MainDETask(maxIterations, maxStale, population,
-                amplification, crossoverProbability, splitCount, problem);
+                amplification, crossoverProbability, splitCount, problem, precision);
 
         system.scheduler().scheduleOnce(FiniteDuration.apply(10, TimeUnit.SECONDS), new Runnable() {
             @Override
@@ -136,7 +139,7 @@ public class DEFrontendMain {
         final float amplification = result.getAmplification();
         final float crossoverProbability = result.getCrossoverProbability();
 
-        if (Math.abs(amplification + crossoverProbability - sPrevious) < PRECISION) {
+        if (Math.abs(amplification + crossoverProbability - sPrevious) < task.getPrecision()) {
             sStaleIterationsCount++;
         } else {
             sStaleIterationsCount = 0;
@@ -155,7 +158,8 @@ public class DEFrontendMain {
 
 
         final MainDETask newTask = new MainDETask(task.getMaxIterationsCount(), task.getMaxStaleCount(),
-                result.getPopulation(), amplification, crossoverProbability, task.getSplitSize(), result.getProblem());
+                result.getPopulation(), amplification, crossoverProbability, task.getSplitSize(), result.getProblem(),
+                task.getPrecision());
         process(newTask, system, actor);
     }
 

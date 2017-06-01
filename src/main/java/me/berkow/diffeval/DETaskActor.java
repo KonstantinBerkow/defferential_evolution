@@ -39,7 +39,7 @@ public class DETaskActor extends AbstractActor {
 
     private static DETask createTask(MainDETask task) {
         return new DETask(task.getMaxIterationsCount(), task.getPopulation(),
-                task.getAmplification(), task.getCrossoverProbability(), task.getProblem());
+                task.getAmplification(), task.getCrossoverProbability(), task.getProblem(), task.getPrecision());
     }
 
     private static DETask createTask(MainDETask task, Random random) {
@@ -52,7 +52,7 @@ public class DETaskActor extends AbstractActor {
         final float rawC = c0 + (random.nextFloat() - 0.5F) / 4F;
         final float newC = Math.max(0F, Math.min(rawC, 1F));
 
-        return new DETask(task.getMaxIterationsCount(), task.getPopulation(), newF, newC, task.getProblem());
+        return new DETask(task.getMaxIterationsCount(), task.getPopulation(), newF, newC, task.getProblem(), task.getPrecision());
     }
 
     @Override
