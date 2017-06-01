@@ -15,6 +15,7 @@ DE with Akka
 6. -randomSeed - seed for random, used only for initial solution generation
 7. -amplification - factor of mutation (double 0..2)
 8. -crossover - crossover probability (double 0..1)
+9. -precision - calculations precision
 
 # Samples:
 ## Backend nodes
