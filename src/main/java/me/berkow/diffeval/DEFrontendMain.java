@@ -17,6 +17,9 @@ import me.berkow.diffeval.problem.Problems;
 import scala.Function1;
 
 import java.io.Console;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -82,7 +85,7 @@ public class DEFrontendMain {
                 working = false;
             } else if (sCanProcessInput) {
                 try {
-                    processInput(system, taskActorRef, input);
+                    processInput(system, taskActorRef, input, logger);
                     sCanProcessInput = false;
                 } catch (Exception e) {
                     logger.error("Failed to process your input: {} due: {}", input, e);
@@ -95,7 +98,7 @@ public class DEFrontendMain {
         System.exit(0);
     }
 
-    private static void processInput(final ActorSystem system, ActorRef taskActorRef, String input) {
+    private static void processInput(final ActorSystem system, ActorRef taskActorRef, String input, final LoggingAdapter logger) {
         final List<String> splits = new ArrayList<>();
         final Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
         final Matcher regexMatcher = regex.matcher(input);
@@ -159,7 +162,7 @@ public class DEFrontendMain {
             public void onComplete(Throwable failure, MainDEResult success) throws Throwable {
                 sCanProcessInput = true;
                 if (failure == null) {
-                    onCompleted(system, success);
+                    onCompleted(system, problemId, success, logger);
                 } else {
                     onFailure(system, failure);
                 }
@@ -167,12 +170,26 @@ public class DEFrontendMain {
         }, system.dispatcher());
     }
 
-    private static void onCompleted(ActorSystem system, MainDEResult result) {
-        final LoggingAdapter logger = Logging.getLogger(system, "Frontend");
+    private static void onCompleted(ActorSystem system, int taskId, MainDEResult result, LoggingAdapter logger) {
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter("task#" + taskId + ".csv", "UTF-8");
+
+            writer.write(taskId + ";" + Util.calculateAverageMember(result.getPopulation()) + ";" + result.getIterationsCount());
+
+            writer.flush();
+            writer.close();
+        } catch (FileNotFoundException e) {
+            logger.error(e, "File not found!");
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e, "UnsupportedEncodingException!");
+        }
 
         logger.info("Completed due: {}", result.getType());
         logger.info("Result iterations: {}", result.getIterationsCount());
         logger.info("Result population: {}", result.getPopulation());
+
+
     }
 
     private static void onFailure(ActorSystem system, Throwable failure) {
