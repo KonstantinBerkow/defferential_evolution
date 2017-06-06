@@ -131,8 +131,8 @@ public class DEFrontendMain {
         float crossoverProbability = Util.getFloatOrDefault(argsMap, "-crossover", 0.5F);
         crossoverProbability = Math.max(0, Math.min(crossoverProbability, 1));
 
-        final double[] lowerBounds = Util.getDoubleArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
-        final double[] upperBounds = Util.getDoubleArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
+        final float[] lowerBounds = Util.getFloatArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
+        final float[] upperBounds = Util.getFloatArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
 
         final double precision = Util.getDoubleOrDefault(argsMap, "-precision", 1e-6);
 

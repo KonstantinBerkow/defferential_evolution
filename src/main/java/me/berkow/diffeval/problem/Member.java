@@ -8,13 +8,13 @@ import java.util.Arrays;
  */
 public class Member implements Serializable {
 
-    private final double[] innerVector;
+    private final float[] innerVector;
 
-    public Member(double[] innerVector) {
+    public Member(float[] innerVector) {
         this.innerVector = innerVector;
     }
 
-    public double get(int position) {
+    public float get(int position) {
         return innerVector[position];
     }
 
@@ -22,7 +22,7 @@ public class Member implements Serializable {
         return innerVector.length;
     }
 
-    public double[] toArray() {
+    public float[] toArray() {
         return innerVector;
     }
 

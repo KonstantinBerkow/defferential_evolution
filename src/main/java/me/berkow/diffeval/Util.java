@@ -33,6 +33,10 @@ public final class Util {
         return min + (max - min) * random.nextDouble();
     }
 
+    public static float nextFloat(float min, float max, Random random) {
+        return min + (max - min) * random.nextFloat();
+    }
+
     public static int getIntOrDefault(Map<String, String> map, String key, int defaultValue) {
         final String value = map.get(key);
         if (value == null) {
@@ -121,10 +125,30 @@ public final class Util {
         return result;
     }
 
+    public static float[] getFloatArrayOrThrow(Map<String, String> map, String key, String msg) {
+        final String value = map.get(key);
+        if (value == null) {
+            throw new IllegalStateException(msg);
+        }
+
+        final String[] rawArr = value.split(",");
+        final float[] result = new float[rawArr.length];
+
+        try {
+            for (int i = 0; i < rawArr.length; i++) {
+                result[i] = Float.parseFloat(rawArr[i]);
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return result;
+    }
+
     public static Member calculateAverageMember(Population population) {
-        final double[] res = new double[population.getMembers()[0].size()];
+        final float[] res = new float[population.getMembers()[0].size()];
         for (Member member : population.getMembers()) {
-            double[] array = member.toArray();
+            float[] array = member.toArray();
             for (int i = 0, arrayLength = array.length; i < arrayLength; i++) {
                 res[i] += array[i];
             }

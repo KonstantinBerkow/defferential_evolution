@@ -44,14 +44,14 @@ public class DECalculationActor extends AbstractActor {
 
         final me.berkow.diffeval.problem.Member[] members = previousGeneration.getMembers();
 
-        final double[] lowerConstraints = problem.getLowerConstraints();
-        final double[] upperConstraints = problem.getUpperConstraints();
+        final float[] lowerConstraints = problem.getLowerConstraints();
+        final float[] upperConstraints = problem.getUpperConstraints();
 
         for (int i = 0; i < populationSize; i++) {
             final me.berkow.diffeval.problem.Member oldVector = members[i];
             final int[] indexes = Util.selectIndexes(0, populationSize, i, 3, random);
             final int mandatoryIndex = random.nextInt(size);
-            final double[] newVector = new double[size];
+            final float[] newVector = new float[size];
 
             for (int j = 0; j < size; j++) {
                 if (mandatoryIndex == j || random.nextDouble() < crossoverProbability) {
@@ -60,11 +60,11 @@ public class DECalculationActor extends AbstractActor {
                     newVector[j] = oldVector.get(j);
                 }
 
-                final double min = lowerConstraints[j];
-                final double max = upperConstraints[j];
+                final float min = lowerConstraints[j];
+                final float max = upperConstraints[j];
 
                 if (newVector[j] < min || max < newVector[j]) {
-                    newVector[j] = Util.nextDouble(min, max, random);
+                    newVector[j] = Util.nextFloat(min, max, random);
                 }
             }
 

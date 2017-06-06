@@ -8,19 +8,19 @@ import java.util.Arrays;
  */
 public abstract class Problem implements Serializable {
 
-    private final double[] lowerConstraints;
-    private final double[] upperConstraints;
+    private final float[] lowerConstraints;
+    private final float[] upperConstraints;
 
-    public Problem(double[] lowerConstraints, double[] upperConstraints) {
+    public Problem(float[] lowerConstraints, float[] upperConstraints) {
         this.lowerConstraints = lowerConstraints;
         this.upperConstraints = upperConstraints;
     }
 
-    public double[] getLowerConstraints() {
+    public float[] getLowerConstraints() {
         return lowerConstraints;
     }
 
-    public double[] getUpperConstraints() {
+    public float[] getUpperConstraints() {
         return upperConstraints;
     }
 
@@ -28,7 +28,7 @@ public abstract class Problem implements Serializable {
         return lowerConstraints.length;
     }
 
-    public abstract double calculate(Member vector);
+    public abstract float calculate(Member vector);
 
     @Override
     public String toString() {
