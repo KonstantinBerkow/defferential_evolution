@@ -70,13 +70,6 @@ public class DEFrontendMain {
         final ActorRef taskActorRef = system.actorOf(taskActorProps, "frontend");
 
         startReadingInput(system, taskActorRef);
-
-//        system.scheduler().scheduleOnce(FiniteDuration.apply(10, TimeUnit.SECONDS), new Runnable() {
-//            @Override
-//            public void run() {
-//                process(task, system, taskActorRef);
-//            }
-//        }, system.dispatcher());
     }
 
     private static void startReadingInput(final ActorSystem system, ActorRef taskActorRef) {
@@ -84,71 +77,78 @@ public class DEFrontendMain {
 
         boolean working = true;
         while (working) {
-            final String taskRawData = console.readLine("Input: ");
-            if ("stop".equals(taskRawData)) {
+            final String input = console.readLine("Input: ");
+            if ("stop".equals(input)) {
                 working = false;
             } else if (sCanProcessInput) {
-                sCanProcessInput = false;
-
-                final String[] splits = taskRawData.split("\\s+");
-
-                final Map<String, String> argsMap = new HashMap<>();
-                for (int i = 0; i < splits.length; i += 2) {
-                    argsMap.put(splits[i], splits[i + 1]);
+                try {
+                    processInput(system, taskActorRef, input);
+                    sCanProcessInput = false;
+                } catch (Exception e) {
+                    system.log().debug("Failed to process your input: {} due: {}", input, e);
                 }
-
-                final int maxIterations = Util.getIntOrDefault(argsMap, "-maxIterations", 100);
-                final int maxStale = Util.getIntOrDefault(argsMap, "-maxStale", 10);
-                final int problemId = Util.getIntOrDefault(argsMap, "-problemId", 5);
-                final int populationSize = Util.getIntOrDefault(argsMap, "-populationSize", 100);
-                final int splitCount = Util.getIntOrDefault(argsMap, "-splitCount", 10);
-                final long randomSeed = Util.getLongOrDefault(argsMap, "-randomSeed", -1);
-
-                float amplification = Util.getFloatOrDefault(argsMap, "-amplification", 0.9F);
-                amplification = Math.max(0, Math.min(amplification, 2));
-
-                float crossoverProbability = Util.getFloatOrDefault(argsMap, "-crossover", 0.5F);
-                crossoverProbability = Math.max(0, Math.min(crossoverProbability, 1));
-
-                final double[] lowerBounds = Util.getDoubleArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
-                final double[] upperBounds = Util.getDoubleArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
-
-                final double precision = Util.getDoubleOrDefault(argsMap, "-precision", 1e-6);
-
-                final Problem problem = Problems.createProblemWithConstraints(problemId, lowerBounds, upperBounds);
-
-                final Random random = randomSeed == -1 ? new Random() : new Random(randomSeed);
-
-                final Population population = Problems.createRandomPopulation(populationSize, problem, random);
-
-                final MainDETask task = new MainDETask(maxIterations, maxStale, population,
-                        amplification, crossoverProbability, splitCount, problem, precision);
-
-                Patterns.ask(taskActorRef, task, 10000).transform(new Function1<Object, DEResult>() {
-                    @Override
-                    public DEResult apply(Object v1) {
-                        return (DEResult) v1;
-                    }
-                }, new Function1<Throwable, Throwable>() {
-                    @Override
-                    public Throwable apply(Throwable error) {
-                        return error;
-                    }
-                }, system.dispatcher()).onComplete(new OnComplete<DEResult>() {
-                    @Override
-                    public void onComplete(Throwable failure, DEResult success) throws Throwable {
-                        sCanProcessInput = true;
-                        if (failure == null) {
-                            onCompleted(system, success, "none");
-                        } else {
-                            onFailure(system, failure);
-                        }
-                    }
-                }, system.dispatcher());
             } else {
                 system.log().debug("Please wait for previous task!");
             }
         }
+    }
+
+    private static void processInput(final ActorSystem system, ActorRef taskActorRef, String input) {
+        final String[] splits = input.split("\\s+");
+
+        final Map<String, String> argsMap = new HashMap<>();
+        for (int i = 0; i < splits.length; i += 2) {
+            argsMap.put(splits[i], splits[i + 1]);
+        }
+
+        final int maxIterations = Util.getIntOrDefault(argsMap, "-maxIterations", 100);
+        final int maxStale = Util.getIntOrDefault(argsMap, "-maxStale", 10);
+        final int problemId = Util.getIntOrDefault(argsMap, "-problemId", 5);
+        final int populationSize = Util.getIntOrDefault(argsMap, "-populationSize", 100);
+        final int splitCount = Util.getIntOrDefault(argsMap, "-splitCount", 10);
+        final long randomSeed = Util.getLongOrDefault(argsMap, "-randomSeed", -1);
+
+        float amplification = Util.getFloatOrDefault(argsMap, "-amplification", 0.9F);
+        amplification = Math.max(0, Math.min(amplification, 2));
+
+        float crossoverProbability = Util.getFloatOrDefault(argsMap, "-crossover", 0.5F);
+        crossoverProbability = Math.max(0, Math.min(crossoverProbability, 1));
+
+        final double[] lowerBounds = Util.getDoubleArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
+        final double[] upperBounds = Util.getDoubleArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
+
+        final double precision = Util.getDoubleOrDefault(argsMap, "-precision", 1e-6);
+
+        final Problem problem = Problems.createProblemWithConstraints(problemId, lowerBounds, upperBounds);
+
+        final Random random = randomSeed == -1 ? new Random() : new Random(randomSeed);
+
+        final Population population = Problems.createRandomPopulation(populationSize, problem, random);
+
+        final MainDETask task = new MainDETask(maxIterations, maxStale, population,
+                amplification, crossoverProbability, splitCount, problem, precision);
+
+        Patterns.ask(taskActorRef, task, 10000).transform(new Function1<Object, DEResult>() {
+            @Override
+            public DEResult apply(Object v1) {
+                return (DEResult) v1;
+            }
+        }, new Function1<Throwable, Throwable>() {
+            @Override
+            public Throwable apply(Throwable error) {
+                return error;
+            }
+        }, system.dispatcher()).onComplete(new OnComplete<DEResult>() {
+            @Override
+            public void onComplete(Throwable failure, DEResult success) throws Throwable {
+                sCanProcessInput = true;
+                if (failure == null) {
+                    onCompleted(system, success, "none");
+                } else {
+                    onFailure(system, failure);
+                }
+            }
+        }, system.dispatcher());
     }
 
     private static void onCompleted(ActorSystem system, DEResult result, String type) {
