@@ -25,11 +25,6 @@ import java.util.Random;
 
 
 public class DEFrontendMain {
-    public static final String READY = "ready";
-
-//    private static int sCurrentIteration = 0;
-//    private static int sStaleIterationsCount = 0;
-//    private static double sPrevious = Double.NaN;
 
     private static volatile boolean sCanProcessInput = true;
 
@@ -166,30 +161,6 @@ public class DEFrontendMain {
         system.log().error(failure, "System {} start up failed!", system);
     }
 
-//    private static void process(final MainDETask task, final ActorSystem system, final ActorRef taskActorRef) {
-//        Patterns.ask(taskActorRef, task, 10000).transform(new Function1<Object, DEResult>() {
-//            @Override
-//            public DEResult apply(Object v1) {
-//                return (DEResult) v1;
-//            }
-//        }, new Function1<Throwable, Throwable>() {
-//            @Override
-//            public Throwable apply(Throwable error) {
-//                return error;
-//            }
-//        }, system.dispatcher())
-//                .onComplete(new OnComplete<DEResult>() {
-//                    @Override
-//                    public void onComplete(Throwable failure, DEResult success) throws Throwable {
-//                        if (failure != null) {
-//                            onFailure(system, failure);
-//                        } else {
-//                            onResult(task, system, success, taskActorRef);
-//                        }
-//                    }
-//                }, system.dispatcher());
-//    }
-//
 //    private static void onResult(MainDETask task, ActorSystem system, DEResult result, ActorRef actor) {
 //        sCurrentIteration++;
 //
