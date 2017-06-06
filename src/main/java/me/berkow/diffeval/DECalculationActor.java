@@ -33,7 +33,8 @@ public class DECalculationActor extends AbstractActor {
     }
 
     private static Population createNewGeneration(final Population previousGeneration, DETask task, Random random) {
-        final List<me.berkow.diffeval.problem.Member> newVectors = new ArrayList<>(task.getPopulationSize());
+        final int populationSize = task.getPopulationSize();
+        final List<me.berkow.diffeval.problem.Member> newVectors = new ArrayList<>(populationSize);
 
         final Problem problem = task.getProblem();
         final int size = problem.getSize();
@@ -46,9 +47,9 @@ public class DECalculationActor extends AbstractActor {
         final double[] lowerConstraints = problem.getLowerConstraints();
         final double[] upperConstraints = problem.getUpperConstraints();
 
-        for (int i = 0; i < task.getPopulationSize(); i++) {
+        for (int i = 0; i < populationSize; i++) {
             final me.berkow.diffeval.problem.Member oldVector = members[i];
-            final int[] indexes = Util.selectIndexes(0, oldVector.size(), i, 3, random);
+            final int[] indexes = Util.selectIndexes(0, populationSize, i, 3, random);
             final int mandatoryIndex = random.nextInt(size);
             final double[] newVector = new double[size];
 
