@@ -22,6 +22,10 @@ public class Member implements Serializable {
         return innerVector.length;
     }
 
+    public double[] toArray() {
+        return innerVector;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -40,9 +44,5 @@ public class Member implements Serializable {
     @Override
     public String toString() {
         return Arrays.toString(innerVector);
-    }
-
-    public double[] toArray() {
-        return innerVector;
     }
 }

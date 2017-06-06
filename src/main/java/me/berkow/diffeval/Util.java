@@ -1,5 +1,8 @@
 package me.berkow.diffeval;
 
+import me.berkow.diffeval.problem.Member;
+import me.berkow.diffeval.problem.Population;
+
 import java.util.*;
 
 /**
@@ -116,5 +119,20 @@ public final class Util {
         }
 
         return result;
+    }
+
+    public static Member calculateAverageMember(Population population) {
+        final double[] res = new double[population.getMembers()[0].size()];
+        for (Member member : population.getMembers()) {
+            double[] array = member.toArray();
+            for (int i = 0, arrayLength = array.length; i < arrayLength; i++) {
+                res[i] += array[i];
+            }
+        }
+        for (int i = 0, resLength = res.length; i < resLength; i++) {
+            res[i] /= population.size();
+
+        }
+        return new Member(res);
     }
 }

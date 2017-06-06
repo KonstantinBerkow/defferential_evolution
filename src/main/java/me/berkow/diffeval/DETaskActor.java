@@ -151,8 +151,6 @@ public class DETaskActor extends AbstractActor {
         currentIterationCount++;
         currentStaleParamsIterationsCount = 0;
 
-        final ActorSystem system = context().system();
-
         final float amplification = result.getAmplification();
         final float crossoverProbability = result.getCrossoverProbability();
 
@@ -166,12 +164,11 @@ public class DETaskActor extends AbstractActor {
             previousPopulationValue = newPopulationValue;
         }
 
-        logger.info("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
-        logger.info("params value: {}", newParamsValue);
-        logger.info("average value: {}", newPopulationValue);
-
-        logger.info("difference between params values: {}", Math.abs(newParamsValue - previousParamsValue));
-        logger.info("difference between populations values: {}", Math.abs(newPopulationValue - previousPopulationValue));
+        logger.info("new amplification: {}", result.getAmplification());
+        logger.info("new crossover probability: {}", result.getCrossoverProbability());
+        logger.info("new params value: {}", newParamsValue);
+        logger.info("new average population value: {}", newPopulationValue);
+        logger.info("new average member: {}", Util.calculateAverageMember(result.getPopulation()));
 
         if (Math.abs(newParamsValue - previousParamsValue) < currentTask.getPrecision()) {
             currentStaleParamsIterationsCount++;
