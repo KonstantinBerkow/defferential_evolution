@@ -30,8 +30,10 @@ public class DETaskActor extends AbstractActor {
     private final Random random;
 
     private int currentIterationCount = 0;
-    private int currentStaleIterationsCount = 0;
-    private double previousValue = Double.NaN;
+    private int currentStaleParamsIterationsCount = 0;
+    private double previousParamsValue = Double.NaN;
+    private int currentStalePopulationIterationsCount = 0;
+    private double previousPopulationValue = Double.NaN;
     private MainDETask currentTask = null;
 
     public DETaskActor(String port) {
@@ -102,9 +104,15 @@ public class DETaskActor extends AbstractActor {
                     @Override
                     public void apply(MainDETask task) throws Exception {
                         currentIterationCount = 0;
-                        currentStaleIterationsCount = 0;
-                        previousValue = Double.NaN;
+
+                        currentStaleParamsIterationsCount = 0;
+                        previousParamsValue = Double.NaN;
+
+                        currentStalePopulationIterationsCount = 0;
+                        previousPopulationValue = Double.NaN;
+
                         currentTask = task;
+
                         calculate(task, sender());
                     }
                 })
@@ -114,41 +122,7 @@ public class DETaskActor extends AbstractActor {
                         final DEResult result = (DEResult) pair.first();
                         final ActorRef originalSender = (ActorRef) pair.second();
 
-                        currentIterationCount++;
-                        currentStaleIterationsCount = 0;
-                        previousValue = Double.NaN;
-
-                        final ActorSystem system = context().system();
-                        final LoggingAdapter loggingAdapter = system.log();
-
-                        loggingAdapter.debug("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
-                        loggingAdapter.debug("average value: {}", result.getValue());
-
-                        final float amplification = result.getAmplification();
-                        final float crossoverProbability = result.getCrossoverProbability();
-
-                        if (Math.abs(amplification + crossoverProbability - previousValue) < currentTask.getPrecision()) {
-                            currentStaleIterationsCount++;
-                        } else {
-                            currentStaleIterationsCount = 0;
-                            previousValue = amplification + crossoverProbability;
-                        }
-
-                        if (currentStaleIterationsCount >= currentTask.getMaxStaleCount()) {
-                            onCompleted(result, "stale", originalSender);
-                            return;
-                        }
-
-                        if (currentIterationCount >= currentTask.getMaxIterationsCount()) {
-                            onCompleted(result, "max_iterations", originalSender);
-                            return;
-                        }
-
-                        final MainDETask newTask = new MainDETask(currentTask.getMaxIterationsCount(), currentTask.getMaxStaleCount(),
-                                result.getPopulation(), amplification, crossoverProbability, currentTask.getSplitSize(), result.getProblem(),
-                                currentTask.getPrecision());
-
-                        calculate(newTask, originalSender);
+                        proceedResults(result, originalSender);
                     }
                 })
                 .matchEquals(BACKEND_REGISTRATION, new FI.UnitApply<String>() {
@@ -166,6 +140,56 @@ public class DETaskActor extends AbstractActor {
                     }
                 })
                 .build();
+    }
+
+    private void proceedResults(DEResult result, ActorRef originalSender) {
+        currentIterationCount++;
+        currentStaleParamsIterationsCount = 0;
+        previousParamsValue = Double.NaN;
+
+        final ActorSystem system = context().system();
+        final LoggingAdapter loggingAdapter = system.log();
+
+        loggingAdapter.debug("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
+        loggingAdapter.debug("average value: {}", result.getValue());
+
+        final float amplification = result.getAmplification();
+        final float crossoverProbability = result.getCrossoverProbability();
+
+        if (Math.abs(amplification + crossoverProbability - previousParamsValue) < currentTask.getPrecision()) {
+            currentStaleParamsIterationsCount++;
+        } else {
+            currentStaleParamsIterationsCount = 0;
+            previousParamsValue = amplification + crossoverProbability;
+        }
+
+        if (currentStaleParamsIterationsCount >= currentTask.getMaxStaleCount()) {
+            onCompleted(result, "stale_params", originalSender);
+            return;
+        }
+
+        if (Math.abs(result.getValue() - previousPopulationValue) < currentTask.getPrecision()) {
+            currentStalePopulationIterationsCount++;
+        } else {
+            currentStalePopulationIterationsCount = 0;
+            previousParamsValue = result.getValue();
+        }
+
+        if (currentStalePopulationIterationsCount >= currentTask.getMaxStaleCount()) {
+            onCompleted(result, "stale_population", originalSender);
+            return;
+        }
+
+        if (currentIterationCount >= currentTask.getMaxIterationsCount()) {
+            onCompleted(result, "max_iterations", originalSender);
+            return;
+        }
+
+        final MainDETask newTask = new MainDETask(currentTask.getMaxIterationsCount(), currentTask.getMaxStaleCount(),
+                result.getPopulation(), amplification, crossoverProbability, currentTask.getSplitSize(), result.getProblem(),
+                currentTask.getPrecision());
+
+        calculate(newTask, originalSender);
     }
 
     private void onCompleted(DEResult result, String type, ActorRef originalSender) {
