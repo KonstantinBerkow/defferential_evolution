@@ -145,7 +145,6 @@ public class DETaskActor extends AbstractActor {
     private void proceedResults(DEResult result, ActorRef originalSender) {
         currentIterationCount++;
         currentStaleParamsIterationsCount = 0;
-        previousParamsValue = Double.NaN;
 
         final ActorSystem system = context().system();
         final LoggingAdapter loggingAdapter = system.log();
@@ -153,15 +152,28 @@ public class DETaskActor extends AbstractActor {
         final float amplification = result.getAmplification();
         final float crossoverProbability = result.getCrossoverProbability();
 
-        loggingAdapter.info("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
-        loggingAdapter.info("average value: {}", result.getValue());
-        loggingAdapter.info("params value: {}", amplification + crossoverProbability);
+        final float newParamsValue = amplification + crossoverProbability;
+        if (Double.isNaN(previousParamsValue)) {
+            previousParamsValue = newParamsValue;
+        }
 
-        if (Math.abs(amplification + crossoverProbability - previousParamsValue) < currentTask.getPrecision()) {
+        final double newPopulationValue = result.getValue();
+        if (Double.isNaN(previousPopulationValue)) {
+            previousPopulationValue = newPopulationValue;
+        }
+
+        loggingAdapter.info("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
+        loggingAdapter.info("params value: {}", newParamsValue);
+        loggingAdapter.info("average value: {}", newPopulationValue);
+
+        loggingAdapter.info("difference between params values: {}", Math.abs(newParamsValue - previousParamsValue));
+        loggingAdapter.info("difference between populations values: {}", Math.abs(newPopulationValue - previousPopulationValue));
+
+        if (Math.abs(newParamsValue - previousParamsValue) < currentTask.getPrecision()) {
             currentStaleParamsIterationsCount++;
         } else {
             currentStaleParamsIterationsCount = 0;
-            previousParamsValue = amplification + crossoverProbability;
+            previousParamsValue = newParamsValue;
         }
 
         if (currentStaleParamsIterationsCount >= currentTask.getMaxStaleCount()) {
@@ -169,11 +181,11 @@ public class DETaskActor extends AbstractActor {
             return;
         }
 
-        if (Math.abs(result.getValue() - previousPopulationValue) < currentTask.getPrecision()) {
+        if (Math.abs(newPopulationValue - previousPopulationValue) < currentTask.getPrecision()) {
             currentStalePopulationIterationsCount++;
         } else {
             currentStalePopulationIterationsCount = 0;
-            previousParamsValue = result.getValue();
+            previousPopulationValue = newPopulationValue;
         }
 
         if (currentStalePopulationIterationsCount >= currentTask.getMaxStaleCount()) {
