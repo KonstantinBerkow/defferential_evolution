@@ -8,7 +8,6 @@ import akka.event.LoggingAdapter;
 import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import me.berkow.diffeval.message.DEResult;
 import me.berkow.diffeval.message.MainDEResult;
 import me.berkow.diffeval.message.MainDETask;
 import me.berkow.diffeval.problem.Population;
@@ -63,8 +62,6 @@ public class DEFrontendMain {
 
         final ActorSystem system = ActorSystem.create("DifferentialEvolution", config);
 
-        system.log().debug("Started up at {}", System.currentTimeMillis());
-
         final Props taskActorProps = Props.create(DETaskActor.class, port);
 
         final ActorRef taskActorRef = system.actorOf(taskActorProps, "frontend");
@@ -85,10 +82,10 @@ public class DEFrontendMain {
                     processInput(system, taskActorRef, input);
                     sCanProcessInput = false;
                 } catch (Exception e) {
-                    system.log().debug("Failed to process your input: {} due: {}", input, e);
+                    system.log().error("Failed to process your input: {} due: {}", input, e);
                 }
             } else {
-                system.log().debug("Please wait for previous task!");
+                system.log().error("Please wait for previous task!");
             }
         }
     }

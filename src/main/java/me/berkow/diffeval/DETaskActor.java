@@ -150,11 +150,12 @@ public class DETaskActor extends AbstractActor {
         final ActorSystem system = context().system();
         final LoggingAdapter loggingAdapter = system.log();
 
-        loggingAdapter.debug("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
-        loggingAdapter.debug("average value: {}", result.getValue());
-
         final float amplification = result.getAmplification();
         final float crossoverProbability = result.getCrossoverProbability();
+
+        loggingAdapter.info("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
+        loggingAdapter.info("average value: {}", result.getValue());
+        loggingAdapter.info("params value: {}", amplification + crossoverProbability);
 
         if (Math.abs(amplification + crossoverProbability - previousParamsValue) < currentTask.getPrecision()) {
             currentStaleParamsIterationsCount++;
