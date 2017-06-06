@@ -257,25 +257,15 @@ public class DETaskActor extends AbstractActor {
 
         final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
 
-        final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture.transform(new Mapper<Iterable<DEResult>, DEResult>() {
+        final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture.transform(new Mapper<Iterable<DEResult>, Pair<DEResult, ActorRef>>() {
             @Override
-            public DEResult apply(Iterable<DEResult> results) {
-                return selectResult(results);
+            public Pair<DEResult, ActorRef> apply(Iterable<DEResult> results) {
+                return new Pair<>(selectResult(results), originalSender);
             }
         }, new Function1<Throwable, Throwable>() {
             @Override
             public Throwable apply(Throwable v1) {
                 return v1;
-            }
-        }, system.dispatcher()).transform(new Mapper<DEResult, Pair<DEResult, ActorRef>>() {
-            @Override
-            public Pair<DEResult, ActorRef> apply(DEResult result) {
-                return new Pair<>(result, originalSender);
-            }
-        }, new Function1<Throwable, Throwable>() {
-            @Override
-            public Throwable apply(Throwable t) {
-                return t;
             }
         }, system.dispatcher());
 
