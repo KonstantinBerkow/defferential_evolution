@@ -55,6 +55,26 @@ public class DETaskActor extends AbstractActor {
         return new DETask(task.getMaxIterationsCount(), task.getPopulation(), newF, newC, task.getProblem(), task.getPrecision());
     }
 
+    private static DEResult selectResult(Iterable<DEResult> results) {
+        final Iterator<DEResult> iterator = results.iterator();
+        double previousValue = Double.MAX_VALUE;
+        DEResult bestResult = null;
+        while (iterator.hasNext()) {
+            final DEResult result = iterator.next();
+            final double value = result.getValue();
+
+            if (bestResult == null) {
+                previousValue = value;
+                bestResult = result;
+            } else if (value < previousValue) {
+                previousValue = value;
+                bestResult = result;
+            }
+        }
+
+        return bestResult;
+    }
+
     @Override
     public void preStart() throws Exception {
         context().system().log().debug("{} pre start!", this);
@@ -156,26 +176,6 @@ public class DETaskActor extends AbstractActor {
         }, system.dispatcher());
 
         Patterns.pipe(resultFuture, system.dispatcher()).to(sender(), self());
-    }
-
-    private DEResult selectResult(Iterable<DEResult> results) {
-        final Iterator<DEResult> iterator = results.iterator();
-        double previousValue = Double.MAX_VALUE;
-        DEResult bestResult = null;
-        while (iterator.hasNext()) {
-            final DEResult result = iterator.next();
-            final double value = result.getValue();
-
-            if (bestResult == null) {
-                previousValue = value;
-                bestResult = result;
-            } else if (value < previousValue) {
-                previousValue = value;
-                bestResult = result;
-            }
-        }
-
-        return bestResult;
     }
 
     @Override
