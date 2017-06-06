@@ -18,10 +18,9 @@ import scala.Function1;
 import java.io.Console;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class DEFrontendMain {
@@ -94,11 +93,25 @@ public class DEFrontendMain {
     }
 
     private static void processInput(final ActorSystem system, ActorRef taskActorRef, String input) {
-        final String[] splits = input.split("\\s+");
+        final List<String> splits = new ArrayList<>();
+        final Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
+        final Matcher regexMatcher = regex.matcher(input);
+        while (regexMatcher.find()) {
+            if (regexMatcher.group(1) != null) {
+                // Add double-quoted string without the quotes
+                splits.add(regexMatcher.group(1));
+            } else if (regexMatcher.group(2) != null) {
+                // Add single-quoted string without the quotes
+                splits.add(regexMatcher.group(2));
+            } else {
+                // Add unquoted word
+                splits.add(regexMatcher.group());
+            }
+        }
 
         final Map<String, String> argsMap = new HashMap<>();
-        for (int i = 0; i < splits.length; i += 2) {
-            argsMap.put(splits[i], splits[i + 1]);
+        for (int i = 0; i < splits.size(); i += 2) {
+            argsMap.put(splits.get(i), splits.get(i + 1));
         }
 
         final int maxIterations = Util.getIntOrDefault(argsMap, "-maxIterations", 100);
