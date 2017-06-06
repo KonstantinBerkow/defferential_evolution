@@ -17,11 +17,13 @@ import me.berkow.diffeval.problem.Problems;
 import scala.Function1;
 
 import java.io.Console;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -171,18 +173,12 @@ public class DEFrontendMain {
     }
 
     private static void onCompleted(ActorSystem system, int taskId, MainDEResult result, LoggingAdapter logger) {
-        PrintWriter writer = null;
+        Path file = Paths.get("task#" + taskId + ".csv");
+        final String dump = taskId + ";" + Util.calculateAverageMember(result.getPopulation()) + ";" + result.getIterationsCount();
         try {
-            writer = new PrintWriter("task#" + taskId + ".csv", "UTF-8");
-
-            writer.write(taskId + ";" + Util.calculateAverageMember(result.getPopulation()) + ";" + result.getIterationsCount());
-
-            writer.flush();
-            writer.close();
-        } catch (FileNotFoundException e) {
-            logger.error(e, "File not found!");
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e, "UnsupportedEncodingException!");
+            Files.write(file, Collections.singletonList(dump), Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            logger.error(e, "Failed to dump task result!");
         }
 
         logger.info("Completed due: {}", result.getType());
