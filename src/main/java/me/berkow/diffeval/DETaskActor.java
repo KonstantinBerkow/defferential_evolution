@@ -207,7 +207,7 @@ public class DETaskActor extends AbstractActor {
     }
 
     private void onCompleted(DEResult result, String type, ActorRef originalSender) {
-        final MainDEResult mainDEResult = new MainDEResult(result, type);
+        final MainDEResult mainDEResult = new MainDEResult(result, type, currentIterationCount);
         originalSender.tell(mainDEResult, self());
     }
 

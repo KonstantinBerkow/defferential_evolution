@@ -13,14 +13,16 @@ public class MainDEResult {
     private final Problem problem;
     private final double value;
     private final String type;
+    private final int iterationsCount;
 
-    public MainDEResult(DEResult result, String type) {
+    public MainDEResult(DEResult result, String type, int iterationsCount) {
         this.population = result.getPopulation();
         this.amplification = result.getAmplification();
         this.crossoverProbability = result.getCrossoverProbability();
         this.problem = result.getProblem();
         this.value = result.getValue();
         this.type = type;
+        this.iterationsCount = iterationsCount;
     }
 
     public Population getPopulation() {
@@ -47,6 +49,10 @@ public class MainDEResult {
         return type;
     }
 
+    public int getIterationsCount() {
+        return iterationsCount;
+    }
+
     @Override
     public String toString() {
         return "MainDEResult{" +
@@ -56,6 +62,7 @@ public class MainDEResult {
                 ", problem=" + problem +
                 ", value=" + value +
                 ", type='" + type + '\'' +
+                ", iterationsCount=" + iterationsCount +
                 '}';
     }
 }

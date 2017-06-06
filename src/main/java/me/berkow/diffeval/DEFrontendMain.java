@@ -6,7 +6,6 @@ import akka.actor.Props;
 import akka.dispatch.OnComplete;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import akka.event.slf4j.Logger;
 import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -26,8 +25,6 @@ import java.util.regex.Pattern;
 
 
 public class DEFrontendMain {
-
-    private static Logger LOGGER;
 
     private static volatile boolean sCanProcessInput = true;
 
@@ -78,8 +75,8 @@ public class DEFrontendMain {
         final Console console = System.console();
 
         boolean working = true;
+        logger.info("Input your task's parameters:");
         while (working) {
-            logger.info("Input your task's parameters:");
             final String input = console.readLine();
             if ("stop".equals(input)) {
                 working = false;
@@ -94,6 +91,8 @@ public class DEFrontendMain {
                 logger.error("Please wait for previous task!");
             }
         }
+
+        System.exit(0);
     }
 
     private static void processInput(final ActorSystem system, ActorRef taskActorRef, String input) {
@@ -169,9 +168,11 @@ public class DEFrontendMain {
     }
 
     private static void onCompleted(ActorSystem system, MainDEResult result) {
-        final LoggingAdapter log = system.log();
-        log.info("Completed due: {}", result.getType());
-        log.info("Result population: {}", result.getPopulation());
+        final LoggingAdapter logger = Logging.getLogger(system, "Frontend");
+
+        logger.info("Completed due: {}", result.getType());
+        logger.info("Result iterations: {}", result.getIterationsCount());
+        logger.info("Result population: {}", result.getPopulation());
     }
 
     private static void onFailure(ActorSystem system, Throwable failure) {
