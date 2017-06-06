@@ -257,7 +257,6 @@ public class DETaskActor extends AbstractActor {
 
         final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
 
-//        final Future<DEResult> resultFuture =
         final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture.transform(new Mapper<Iterable<DEResult>, DEResult>() {
             @Override
             public DEResult apply(Iterable<DEResult> results) {
@@ -280,7 +279,6 @@ public class DETaskActor extends AbstractActor {
             }
         }, system.dispatcher());
 
-//        Patterns.pipe(resultFuture, system.dispatcher()).to(sender(), self());
         Patterns.pipe(resultFuture, system.dispatcher()).to(self(), self());
     }
 
