@@ -4,7 +4,9 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.dispatch.OnComplete;
+import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import akka.event.slf4j.Logger;
 import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -24,6 +26,8 @@ import java.util.regex.Pattern;
 
 
 public class DEFrontendMain {
+
+    private static Logger LOGGER;
 
     private static volatile boolean sCanProcessInput = true;
 
@@ -70,11 +74,13 @@ public class DEFrontendMain {
     }
 
     private static void startReadingInput(final ActorSystem system, ActorRef taskActorRef) {
+        final LoggingAdapter logger = Logging.getLogger(system, "Frontend");
         final Console console = System.console();
 
         boolean working = true;
         while (working) {
-            final String input = console.readLine("Input: ");
+            logger.info("Input your task's parameters:");
+            final String input = console.readLine();
             if ("stop".equals(input)) {
                 working = false;
             } else if (sCanProcessInput) {
@@ -82,10 +88,10 @@ public class DEFrontendMain {
                     processInput(system, taskActorRef, input);
                     sCanProcessInput = false;
                 } catch (Exception e) {
-                    system.log().error("Failed to process your input: {} due: {}", input, e);
+                    logger.error("Failed to process your input: {} due: {}", input, e);
                 }
             } else {
-                system.log().error("Please wait for previous task!");
+                logger.error("Please wait for previous task!");
             }
         }
     }

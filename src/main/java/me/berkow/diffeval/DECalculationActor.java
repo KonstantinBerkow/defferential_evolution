@@ -113,8 +113,6 @@ public class DECalculationActor extends AbstractActor {
 
         cluster = Cluster.get(system);
         cluster.subscribe(self(), ClusterEvent.MemberUp.class);
-
-        system.log().debug("{} pre start!", this);
     }
 
     @Override

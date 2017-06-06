@@ -6,6 +6,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Terminated;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
+import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Pair;
 import akka.japi.pf.FI;
@@ -35,6 +36,8 @@ public class DETaskActor extends AbstractActor {
     private int currentStalePopulationIterationsCount = 0;
     private double previousPopulationValue = Double.NaN;
     private MainDETask currentTask = null;
+
+    private LoggingAdapter logger;
 
     public DETaskActor(String port) {
         this.port = port;
@@ -82,7 +85,9 @@ public class DETaskActor extends AbstractActor {
 
     @Override
     public void preStart() throws Exception {
-        context().system().log().debug("{} pre start!", this);
+        logger = Logging.getLogger(this);
+
+        logger.debug("{} pre start!", this);
     }
 
     @Override
@@ -147,7 +152,6 @@ public class DETaskActor extends AbstractActor {
         currentStaleParamsIterationsCount = 0;
 
         final ActorSystem system = context().system();
-        final LoggingAdapter loggingAdapter = system.log();
 
         final float amplification = result.getAmplification();
         final float crossoverProbability = result.getCrossoverProbability();
@@ -162,12 +166,12 @@ public class DETaskActor extends AbstractActor {
             previousPopulationValue = newPopulationValue;
         }
 
-        loggingAdapter.info("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
-        loggingAdapter.info("params value: {}", newParamsValue);
-        loggingAdapter.info("average value: {}", newPopulationValue);
+        logger.info("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
+        logger.info("params value: {}", newParamsValue);
+        logger.info("average value: {}", newPopulationValue);
 
-        loggingAdapter.info("difference between params values: {}", Math.abs(newParamsValue - previousParamsValue));
-        loggingAdapter.info("difference between populations values: {}", Math.abs(newPopulationValue - previousPopulationValue));
+        logger.info("difference between params values: {}", Math.abs(newParamsValue - previousParamsValue));
+        logger.info("difference between populations values: {}", Math.abs(newPopulationValue - previousPopulationValue));
 
         if (Math.abs(newParamsValue - previousParamsValue) < currentTask.getPrecision()) {
             currentStaleParamsIterationsCount++;
@@ -212,16 +216,14 @@ public class DETaskActor extends AbstractActor {
 
     @Override
     public void postStop() throws Exception {
-        context().system().log().debug("{} postStop", this);
+        logger.debug("{} postStop", this);
         backends.clear(); //huh?
     }
 
     private void calculate(MainDETask task, final ActorRef originalSender) {
         final ActorSystem system = context().system();
 
-        final LoggingAdapter log = system.log();
-
-        log.debug("Calculate from: {}, by: {}", task.getPopulation(), this);
+        logger.debug("Calculate from: {}, by: {}", task.getPopulation(), this);
 
         final int splitSize = task.getSplitSize();
 
@@ -235,7 +237,7 @@ public class DETaskActor extends AbstractActor {
         for (int i = 0; i < tasks.size(); i++) {
             final DETask splitedTask = tasks.get(i);
 
-            log.debug("new control values F: {}, CR: {}", splitedTask.getAmplification(), splitedTask.getCrossoverProbability());
+            logger.debug("new control values F: {}, CR: {}", splitedTask.getAmplification(), splitedTask.getCrossoverProbability());
 
             final Future<DEResult> future = Patterns.ask(backends.get(i % backends.size()), splitedTask, 10000)
                     .transform(new Mapper<Object, DEResult>() {
