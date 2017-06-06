@@ -167,11 +167,11 @@ public class DEFrontendMain {
     private static void onCompleted(ActorSystem system, DEResult result, String type) {
         final LoggingAdapter log = system.log();
         log.info("Completed due: {}", type);
-        log.info("result population: {}", result.getPopulation());
+        log.info("Result population: {}", result.getPopulation());
     }
 
     private static void onFailure(ActorSystem system, Throwable failure) {
-        system.log().error(failure, "System {} start up failed!", system);
+        system.log().error(failure, "Failed due {}", failure);
     }
 
 //    private static void onResult(MainDETask task, ActorSystem system, DEResult result, ActorRef actor) {
