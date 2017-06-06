@@ -7,12 +7,10 @@ import akka.actor.Terminated;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.event.LoggingAdapter;
+import akka.japi.Pair;
 import akka.japi.pf.FI;
 import akka.pattern.Patterns;
-import me.berkow.diffeval.message.DEResult;
-import me.berkow.diffeval.message.DETask;
-import me.berkow.diffeval.message.MainDETask;
-import me.berkow.diffeval.message.TaskFailedMsg;
+import me.berkow.diffeval.message.*;
 import scala.Function1;
 import scala.concurrent.Future;
 
@@ -30,6 +28,11 @@ public class DETaskActor extends AbstractActor {
     private final String port;
     private final List<ActorRef> backends;
     private final Random random;
+
+    private int currentIterationCount = 0;
+    private int currentStaleIterationsCount = 0;
+    private double previousValue = Double.NaN;
+    private MainDETask currentTask = null;
 
     public DETaskActor(String port) {
         this.port = port;
@@ -98,7 +101,54 @@ public class DETaskActor extends AbstractActor {
                 .match(MainDETask.class, new FI.UnitApply<MainDETask>() {
                     @Override
                     public void apply(MainDETask task) throws Exception {
-                        calculate(task);
+                        currentIterationCount = 0;
+                        currentStaleIterationsCount = 0;
+                        previousValue = Double.NaN;
+                        currentTask = task;
+                        calculate(task, sender());
+                    }
+                })
+                .match(Pair.class, new FI.UnitApply<Pair>() {
+                    @Override
+                    public void apply(Pair pair) throws Exception {
+                        final DEResult result = (DEResult) pair.first();
+                        final ActorRef originalSender = (ActorRef) pair.second();
+
+                        currentIterationCount++;
+                        currentStaleIterationsCount = 0;
+                        previousValue = Double.NaN;
+
+                        final ActorSystem system = context().system();
+                        final LoggingAdapter loggingAdapter = system.log();
+
+                        loggingAdapter.debug("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
+                        loggingAdapter.debug("average value: {}", result.getValue());
+
+                        final float amplification = result.getAmplification();
+                        final float crossoverProbability = result.getCrossoverProbability();
+
+                        if (Math.abs(amplification + crossoverProbability - previousValue) < currentTask.getPrecision()) {
+                            currentStaleIterationsCount++;
+                        } else {
+                            currentStaleIterationsCount = 0;
+                            previousValue = amplification + crossoverProbability;
+                        }
+
+                        if (currentStaleIterationsCount >= currentTask.getMaxStaleCount()) {
+                            onCompleted(result, "stale", originalSender);
+                            return;
+                        }
+
+                        if (currentIterationCount >= currentTask.getMaxIterationsCount()) {
+                            onCompleted(result, "max_iterations", originalSender);
+                            return;
+                        }
+
+                        final MainDETask newTask = new MainDETask(currentTask.getMaxIterationsCount(), currentTask.getMaxStaleCount(),
+                                result.getPopulation(), amplification, crossoverProbability, currentTask.getSplitSize(), result.getProblem(),
+                                currentTask.getPrecision());
+
+                        calculate(newTask, originalSender);
                     }
                 })
                 .matchEquals(BACKEND_REGISTRATION, new FI.UnitApply<String>() {
@@ -118,13 +168,18 @@ public class DETaskActor extends AbstractActor {
                 .build();
     }
 
+    private void onCompleted(DEResult result, String type, ActorRef originalSender) {
+        final MainDEResult mainDEResult = new MainDEResult(result, type);
+        originalSender.tell(mainDEResult, self());
+    }
+
     @Override
     public void postStop() throws Exception {
         context().system().log().debug("{} postStop", this);
         backends.clear(); //huh?
     }
 
-    private void calculate(MainDETask task) {
+    private void calculate(MainDETask task, final ActorRef originalSender) {
         final ActorSystem system = context().system();
 
         final LoggingAdapter log = system.log();
@@ -163,7 +218,8 @@ public class DETaskActor extends AbstractActor {
 
         final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
 
-        final Future<DEResult> resultFuture = resultsFuture.transform(new Mapper<Iterable<DEResult>, DEResult>() {
+//        final Future<DEResult> resultFuture =
+        final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture.transform(new Mapper<Iterable<DEResult>, DEResult>() {
             @Override
             public DEResult apply(Iterable<DEResult> results) {
                 return selectResult(results);
@@ -173,9 +229,20 @@ public class DETaskActor extends AbstractActor {
             public Throwable apply(Throwable v1) {
                 return v1;
             }
+        }, system.dispatcher()).transform(new Mapper<DEResult, Pair<DEResult, ActorRef>>() {
+            @Override
+            public Pair<DEResult, ActorRef> apply(DEResult result) {
+                return new Pair<>(result, originalSender);
+            }
+        }, new Function1<Throwable, Throwable>() {
+            @Override
+            public Throwable apply(Throwable t) {
+                return t;
+            }
         }, system.dispatcher());
 
-        Patterns.pipe(resultFuture, system.dispatcher()).to(sender(), self());
+//        Patterns.pipe(resultFuture, system.dispatcher()).to(sender(), self());
+        Patterns.pipe(resultFuture, system.dispatcher()).to(self(), self());
     }
 
     @Override

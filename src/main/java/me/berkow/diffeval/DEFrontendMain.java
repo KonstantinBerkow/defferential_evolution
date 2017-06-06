@@ -9,6 +9,7 @@ import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import me.berkow.diffeval.message.DEResult;
+import me.berkow.diffeval.message.MainDEResult;
 import me.berkow.diffeval.message.MainDETask;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
@@ -141,22 +142,22 @@ public class DEFrontendMain {
         final MainDETask task = new MainDETask(maxIterations, maxStale, population,
                 amplification, crossoverProbability, splitCount, problem, precision);
 
-        Patterns.ask(taskActorRef, task, 10000).transform(new Function1<Object, DEResult>() {
+        Patterns.ask(taskActorRef, task, 10000).transform(new Function1<Object, MainDEResult>() {
             @Override
-            public DEResult apply(Object v1) {
-                return (DEResult) v1;
+            public MainDEResult apply(Object v1) {
+                return (MainDEResult) v1;
             }
         }, new Function1<Throwable, Throwable>() {
             @Override
             public Throwable apply(Throwable error) {
                 return error;
             }
-        }, system.dispatcher()).onComplete(new OnComplete<DEResult>() {
+        }, system.dispatcher()).onComplete(new OnComplete<MainDEResult>() {
             @Override
-            public void onComplete(Throwable failure, DEResult success) throws Throwable {
+            public void onComplete(Throwable failure, MainDEResult success) throws Throwable {
                 sCanProcessInput = true;
                 if (failure == null) {
-                    onCompleted(system, success, "none");
+                    onCompleted(system, success);
                 } else {
                     onFailure(system, failure);
                 }
@@ -164,46 +165,13 @@ public class DEFrontendMain {
         }, system.dispatcher());
     }
 
-    private static void onCompleted(ActorSystem system, DEResult result, String type) {
+    private static void onCompleted(ActorSystem system, MainDEResult result) {
         final LoggingAdapter log = system.log();
-        log.info("Completed due: {}", type);
+        log.info("Completed due: {}", result.getType());
         log.info("Result population: {}", result.getPopulation());
     }
 
     private static void onFailure(ActorSystem system, Throwable failure) {
         system.log().error(failure, "Failed due {}", failure);
     }
-
-//    private static void onResult(MainDETask task, ActorSystem system, DEResult result, ActorRef actor) {
-//        sCurrentIteration++;
-//
-//        system.log().debug("new result control values F: {}, CR: {}", result.getAmplification(), result.getCrossoverProbability());
-//        system.log().debug("average value: {}", result.getValue());
-//
-//        final float amplification = result.getAmplification();
-//        final float crossoverProbability = result.getCrossoverProbability();
-//
-//        if (Math.abs(amplification + crossoverProbability - sPrevious) < task.getPrecision()) {
-//            sStaleIterationsCount++;
-//        } else {
-//            sStaleIterationsCount = 0;
-//            sPrevious = amplification + crossoverProbability;
-//        }
-//
-//        if (sStaleIterationsCount >= task.getMaxStaleCount()) {
-//            onCompleted(system, result, "stale");
-//            return;
-//        }
-//
-//        if (sCurrentIteration >= task.getMaxIterationsCount()) {
-//            onCompleted(system, result, "max_iterations");
-//            return;
-//        }
-//
-//
-//        final MainDETask newTask = new MainDETask(task.getMaxIterationsCount(), task.getMaxStaleCount(),
-//                result.getPopulation(), amplification, crossoverProbability, task.getSplitSize(), result.getProblem(),
-//                task.getPrecision());
-//        process(newTask, system, actor);
-//    }
 }
