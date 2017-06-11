@@ -13,7 +13,7 @@ public class DEResult implements Serializable {
     private final float crossoverProbability;
     private final Problem problem;
 
-    private double value = Double.NaN;
+    private float value = Float.NaN;
 
     public DEResult(Population population, float amplification, float crossoverProbability, Problem problem) {
         this.population = population;
@@ -22,7 +22,7 @@ public class DEResult implements Serializable {
         this.problem = problem;
     }
 
-    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem, double value) {
+    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem, float value) {
         this(population, amplification, crossoverProbability, problem);
         this.value = value;
     }
@@ -43,8 +43,8 @@ public class DEResult implements Serializable {
         return problem;
     }
 
-    public double getValue() {
-        if (Double.isNaN(value)) {
+    public float getValue() {
+        if (Float.isNaN(value)) {
             value = Problems.calculatePopulationValue(problem, population);
         }
         return value;

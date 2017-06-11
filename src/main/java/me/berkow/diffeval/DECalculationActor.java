@@ -84,11 +84,11 @@ public class DECalculationActor extends AbstractActor {
         Population previousGeneration = task.getInitialPopulation();
         final Problem problem = task.getProblem();
         int staleIterationsCount = 0;
-        double previousValue = Double.NaN;
+        float previousValue = Float.NaN;
         for (int generation = 0; generation < task.getMaxIterationsCount(); generation++) {
             final Population newVectors = createNewGeneration(previousGeneration, task, random);
 
-            final double newValue = Problems.calculatePopulationValue(problem, newVectors);
+            final float newValue = Problems.calculatePopulationValue(problem, newVectors);
 
             if (Math.abs(newValue - previousValue) < task.getPrecision()) {
                 staleIterationsCount++;

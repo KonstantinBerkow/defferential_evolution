@@ -11,7 +11,7 @@ public class MainDEResult {
     private final float amplification;
     private final float crossoverProbability;
     private final Problem problem;
-    private final double value;
+    private final float value;
     private final String type;
     private final int iterationsCount;
 

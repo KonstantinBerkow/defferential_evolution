@@ -32,9 +32,9 @@ public class DETaskActor extends AbstractActor {
 
     private int currentIterationCount = 0;
     private int currentStaleParamsIterationsCount = 0;
-    private double previousParamsValue = Double.NaN;
+    private float previousParamsValue = Float.NaN;
     private int currentStalePopulationIterationsCount = 0;
-    private double previousPopulationValue = Double.NaN;
+    private float previousPopulationValue = Float.NaN;
     private MainDETask currentTask = null;
 
     private LoggingAdapter logger;
@@ -65,11 +65,11 @@ public class DETaskActor extends AbstractActor {
 
     private static DEResult selectResult(Iterable<DEResult> results) {
         final Iterator<DEResult> iterator = results.iterator();
-        double previousValue = Double.MAX_VALUE;
+        float previousValue = Float.MAX_VALUE;
         DEResult bestResult = null;
         while (iterator.hasNext()) {
             final DEResult result = iterator.next();
-            final double value = result.getValue();
+            final float value = result.getValue();
 
             if (bestResult == null) {
                 previousValue = value;
@@ -111,10 +111,10 @@ public class DETaskActor extends AbstractActor {
                         currentIterationCount = 0;
 
                         currentStaleParamsIterationsCount = 0;
-                        previousParamsValue = Double.NaN;
+                        previousParamsValue = Float.NaN;
 
                         currentStalePopulationIterationsCount = 0;
-                        previousPopulationValue = Double.NaN;
+                        previousPopulationValue = Float.NaN;
 
                         currentTask = task;
 
@@ -155,12 +155,12 @@ public class DETaskActor extends AbstractActor {
         final float crossoverProbability = result.getCrossoverProbability();
 
         final float newParamsValue = amplification + crossoverProbability;
-        if (Double.isNaN(previousParamsValue)) {
+        if (Float.isNaN(previousParamsValue)) {
             previousParamsValue = newParamsValue;
         }
 
-        final double newPopulationValue = result.getValue();
-        if (Double.isNaN(previousPopulationValue)) {
+        final float newPopulationValue = result.getValue();
+        if (Float.isNaN(previousPopulationValue)) {
             previousPopulationValue = newPopulationValue;
         }
 
