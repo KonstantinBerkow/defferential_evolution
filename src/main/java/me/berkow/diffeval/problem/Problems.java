@@ -11,6 +11,18 @@ import java.util.Random;
  */
 @SuppressWarnings("SameParameterValue")
 public final class Problems {
+    private static final int K_MAX = 26;
+    private static final float[] AK = new float[K_MAX];
+    private static final float[] BK = new float[K_MAX];
+
+    static {
+        AK[0] = 1;
+        BK[0] = (float) Math.PI;
+        for (int i = 1; i < K_MAX; i++) {
+            AK[i] = AK[i - 1] * .5F;
+            BK[i] = BK[i - 1] * 3;
+        }
+    }
 
     public static float calculateProblem1(float[] vector) {
         float sum = 0;
@@ -128,6 +140,24 @@ public final class Problems {
         return f1Result / 4000 - product + 1;
     }
 
+    public static float calculateProblem12(float[] vector) {
+        float result = 0;
+        final int n = vector.length;
+
+        for (int i = 0; i < n; i++) {
+            for (int k = 0; k < 26; k++) {
+                result += AK[k] * Math.cos(2 * BK[k] * (vector[i] + .5F));
+            }
+        }
+
+        float minus = 0;
+        for (int k = 0; k < 26; k++) {
+            minus += AK[k] * Math.cos(BK[k]);
+        }
+
+        return result - n * minus;
+    }
+
     public static Problem createProblemWithConstraints(int problemId, float[] lowerBounds, float[] upperBounds) {
         switch (problemId) {
             case 1:
@@ -199,6 +229,13 @@ public final class Problems {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem10(vector.toArray());
+                    }
+                };
+            case 12:
+                return new Problem(lowerBounds, upperBounds) {
+                    @Override
+                    public float calculate(Member vector) {
+                        return calculateProblem12(vector.toArray());
                     }
                 };
             default:

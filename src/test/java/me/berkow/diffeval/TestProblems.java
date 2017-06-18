@@ -38,4 +38,13 @@ public class TestProblems {
                 0.0001
         );
     }
+
+    @Test
+    public void testProblem11() {
+        Assert.assertEquals(
+                0,
+                Problems.calculateProblem12(new float[]{0, 0, 0, 0}),
+                0.0001
+        );
+    }
 }
