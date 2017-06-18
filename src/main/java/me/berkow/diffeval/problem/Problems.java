@@ -35,6 +35,7 @@ public final class Problems {
         return sum + product;
     }
 
+    //looks like problem in definition, {0...0} won't be it's minimum maybe abs needed
     public static float calculateProblem3(float[] vector) {
         float outerSum = 0;
 
@@ -80,6 +81,7 @@ public final class Problems {
         return sum;
     }
 
+    //looks like min is {-418.9829, ..., -418.9828} not {418.9828, ..., 418.9828}
     public static float calculateProblem7(float[] vector) {
         float sum = 0;
 
@@ -120,7 +122,7 @@ public final class Problems {
 
         float product = 1;
         for (int i = 0; i < vector.length; i++) {
-            product *= Math.cos(vector[i] / Math.sqrt(i));
+            product *= Math.cos(vector[i] / Math.sqrt(i + 1));
         }
 
         return f1Result / 4000 - product + 1;
