@@ -1,8 +1,6 @@
 package me.berkow.diffeval.util;
 
-import me.berkow.diffeval.problem.Member;
-import me.berkow.diffeval.problem.Population;
-
+import java.text.NumberFormat;
 import java.util.*;
 
 /**
@@ -10,6 +8,12 @@ import java.util.*;
  */
 @SuppressWarnings("SameParameterValue")
 public final class Util {
+
+    private static final NumberFormat FORMAT = NumberFormat.getInstance();
+
+    static {
+        FORMAT.setMaximumFractionDigits(6);
+    }
 
     public static int[] selectIndexes(int from, int to, int except, int quantity, Random random) {
         final List<Integer> allowedInts = new ArrayList<>();
@@ -145,17 +149,26 @@ public final class Util {
         return result;
     }
 
-    public static Member calculateAverageMember(Population population) {
-        final float[] res = new float[population.getMembers()[0].size()];
-        for (Member member : population.getMembers()) {
-            float[] array = member.toArray();
-            for (int i = 0, arrayLength = array.length; i < arrayLength; i++) {
-                res[i] += array[i];
-            }
+
+    public static String prettyFloatArray(float[] array) {
+        if (array == null)
+            return "null";
+
+        int iMax = array.length - 1;
+        if (iMax == -1)
+            return "[]";
+
+        StringBuilder b = new StringBuilder();
+        b.append('[');
+        for (int i = 0; ; i++) {
+            b.append(FORMAT.format(array[i]));
+            if (i == iMax)
+                return b.append(']').toString();
+            b.append(", ");
         }
-        for (int i = 0, resLength = res.length; i < resLength; i++) {
-            res[i] /= population.size();
-        }
-        return new Member(res);
+    }
+
+    public static String prettyNumber(float value) {
+        return FORMAT.format(value);
     }
 }

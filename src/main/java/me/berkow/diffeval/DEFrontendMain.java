@@ -167,7 +167,7 @@ public class DEFrontendMain {
 
     private static void onCompleted(ActorSystem system, int taskId, MainDEResult result, LoggingAdapter logger) {
         Path file = Paths.get("task#" + taskId + ".csv");
-        final String dump = taskId + ";" + Util.calculateAverageMember(result.getPopulation()) + ";" + result.getIterationsCount();
+        final String dump = taskId + ";" + Problems.calculateAverageMember(result.getPopulation()) + ";" + result.getIterationsCount();
         try {
             Files.write(file, Collections.singletonList(dump), Charset.forName("UTF-8"));
         } catch (IOException e) {

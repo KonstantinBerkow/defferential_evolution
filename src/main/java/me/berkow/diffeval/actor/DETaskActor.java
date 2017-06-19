@@ -10,6 +10,7 @@ import akka.event.LoggingAdapter;
 import akka.japi.Pair;
 import akka.pattern.Patterns;
 import me.berkow.diffeval.message.*;
+import me.berkow.diffeval.problem.Member;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
@@ -130,7 +131,23 @@ public class DETaskActor extends AbstractActor {
         logger.info("iteration: {}", currentIterationCount);
         logger.info("new amplification: {}", result.getAmplification());
         logger.info("new crossover probability: {}", result.getCrossoverProbability());
-        logger.info("new average member: {}", Util.calculateAverageMember(population));
+        logger.info("new average member: {}", Problems.calculateAverageMember(population));
+
+        final Member[] members = result.getPopulation().getMembers();
+        final int size = members.length;
+        boolean stop = false;
+        for (int i = 0; i < size && !stop; i++) {
+            for (int j = i + 1; j < size; j++) {
+                final float diff = Math.abs(problem.calculate(members[i]) - problem.calculate(members[j]));
+                if (diff >= precision) {
+                    logger.info("Difference {}", Util.prettyNumber(diff));
+                    final String formattedComponents = Util.prettyFloatArray(Problems.componentsDiff(members[i], members[j]));
+                    logger.info("Component differences: {}", formattedComponents);
+                    stop = true;
+                    break;
+                }
+            }
+        }
 
         if (Problems.checkConvergence(population, problem, precision)) {
             onCompleted(result, "converged_population", originalSender);

@@ -3,12 +3,8 @@ package me.berkow.diffeval.problem;
 import me.berkow.diffeval.util.Util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.function.IntFunction;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * Created by konstantinberkow on 5/11/17.
@@ -304,5 +300,28 @@ public final class Problems {
         }
 
         return true;
+    }
+
+    public static float[] componentsDiff(Member first, Member second) {
+        final int size = first.size();
+        final float[] diffs = new float[size];
+        for (int i = 0; i < size; i++) {
+            diffs[i] = Math.abs(first.get(i) - second.get(i));
+        }
+        return diffs;
+    }
+
+    public static Member calculateAverageMember(Population population) {
+        final float[] res = new float[population.getMembers()[0].size()];
+        for (Member member : population.getMembers()) {
+            float[] array = member.toArray();
+            for (int i = 0, arrayLength = array.length; i < arrayLength; i++) {
+                res[i] += array[i];
+            }
+        }
+        for (int i = 0, resLength = res.length; i < resLength; i++) {
+            res[i] /= population.size();
+        }
+        return new Member(res);
     }
 }
