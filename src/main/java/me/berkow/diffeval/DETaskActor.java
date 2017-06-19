@@ -5,7 +5,6 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Terminated;
 import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Pair;
@@ -14,8 +13,8 @@ import me.berkow.diffeval.message.*;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
-import me.berkow.diffeval.util.CastMapper;
 import me.berkow.diffeval.util.Util;
+import scala.Function1;
 import scala.concurrent.Future;
 
 import java.util.ArrayList;
@@ -182,20 +181,22 @@ public class DETaskActor extends AbstractActor {
             logger.debug("new control values F: {}, CR: {}", splitedTask.getAmplification(), splitedTask.getCrossoverProbability());
 
             final Future<DEResult> future = Patterns.ask(backends.get(i % backends.size()), splitedTask, 10000)
-                    .transform(new CastMapper<Object, DEResult>(), error -> error, system.dispatcher());
+                    .transform(result -> (DEResult) result, error -> error, system.dispatcher());
 
             futures.add(future);
         }
 
         final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
 
+        new Function1<Integer, Double>() {
+            @Override
+            public Double apply(Integer v1) {
+                return null;
+            }
+        };
+
         final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture
-                .transform(new Mapper<Iterable<DEResult>, Pair<DEResult, ActorRef>>() {
-                    @Override
-                    public Pair<DEResult, ActorRef> apply(Iterable<DEResult> results) {
-                        return new Pair<>(selectResult(results), originalSender);
-                    }
-                }, error -> error, system.dispatcher());
+                .transform(results -> new Pair<>(selectResult(results), originalSender), error -> error, system.dispatcher());
 
         final ActorRef self = getSelf();
 
