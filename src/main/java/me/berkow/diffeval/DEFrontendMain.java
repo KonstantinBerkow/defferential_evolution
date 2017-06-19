@@ -139,7 +139,7 @@ public class DEFrontendMain {
         final float[] lowerBounds = Util.getFloatArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
         final float[] upperBounds = Util.getFloatArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
 
-        final float precision = Util.getFloatOrDefault(argsMap, "-precision", 1e-6F);
+        final float precision = Util.getFloatOrDefault(argsMap, "-precision", 1e-12F);
 
         final Problem problem = Problems.createProblemWithConstraints(problemId, lowerBounds, upperBounds);
 
