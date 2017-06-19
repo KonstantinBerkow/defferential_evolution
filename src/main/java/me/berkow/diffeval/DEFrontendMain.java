@@ -14,6 +14,7 @@ import me.berkow.diffeval.message.MainDETask;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
+import me.berkow.diffeval.util.Util;
 
 import java.io.Console;
 import java.io.IOException;

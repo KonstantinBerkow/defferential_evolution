@@ -13,6 +13,7 @@ import me.berkow.diffeval.message.DETask;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
+import me.berkow.diffeval.util.Util;
 import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 

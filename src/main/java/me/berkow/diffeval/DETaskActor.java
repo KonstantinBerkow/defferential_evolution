@@ -11,6 +11,8 @@ import akka.event.LoggingAdapter;
 import akka.japi.Pair;
 import akka.pattern.Patterns;
 import me.berkow.diffeval.message.*;
+import me.berkow.diffeval.util.CastMapper;
+import me.berkow.diffeval.util.Util;
 import scala.concurrent.Future;
 
 import java.util.ArrayList;
@@ -214,24 +216,20 @@ public class DETaskActor extends AbstractActor {
             logger.debug("new control values F: {}, CR: {}", splitedTask.getAmplification(), splitedTask.getCrossoverProbability());
 
             final Future<DEResult> future = Patterns.ask(backends.get(i % backends.size()), splitedTask, 10000)
-                    .transform(new Mapper<Object, DEResult>() {
-                        @Override
-                        public DEResult apply(Object parameter) {
-                            return (DEResult) parameter;
-                        }
-                    }, error -> error, system.dispatcher());
+                    .transform(new CastMapper<Object, DEResult>(), error -> error, system.dispatcher());
 
             futures.add(future);
         }
 
         final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
 
-        final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture.transform(new Mapper<Iterable<DEResult>, Pair<DEResult, ActorRef>>() {
-            @Override
-            public Pair<DEResult, ActorRef> apply(Iterable<DEResult> results) {
-                return new Pair<>(selectResult(results), originalSender);
-            }
-        }, error -> error, system.dispatcher());
+        final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture
+                .transform(new Mapper<Iterable<DEResult>, Pair<DEResult, ActorRef>>() {
+                    @Override
+                    public Pair<DEResult, ActorRef> apply(Iterable<DEResult> results) {
+                        return new Pair<>(selectResult(results), originalSender);
+                    }
+                }, error -> error, system.dispatcher());
 
         final ActorRef self = getSelf();
 

@@ -1,6 +1,6 @@
 package me.berkow.diffeval.problem;
 
-import me.berkow.diffeval.Util;
+import me.berkow.diffeval.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;

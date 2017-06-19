@@ -1,4 +1,4 @@
-package me.berkow.diffeval;
+package me.berkow.diffeval.util;
 
 import me.berkow.diffeval.problem.Member;
 import me.berkow.diffeval.problem.Population;
