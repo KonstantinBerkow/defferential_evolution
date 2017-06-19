@@ -14,7 +14,6 @@ import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
 import me.berkow.diffeval.util.Util;
-import scala.Function1;
 import scala.concurrent.Future;
 
 import java.util.ArrayList;
@@ -187,13 +186,6 @@ public class DETaskActor extends AbstractActor {
         }
 
         final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
-
-        new Function1<Integer, Double>() {
-            @Override
-            public Double apply(Integer v1) {
-                return null;
-            }
-        };
 
         final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture
                 .transform(results -> new Pair<>(selectResult(results), originalSender), error -> error, system.dispatcher());
