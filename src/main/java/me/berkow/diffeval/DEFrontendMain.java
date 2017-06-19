@@ -177,8 +177,6 @@ public class DEFrontendMain {
         logger.info("Completed due: {}", result.getType());
         logger.info("Result iterations: {}", result.getIterationsCount());
         logger.info("Result population: {}", result.getPopulation());
-
-
     }
 
     private static void onFailure(ActorSystem system, Throwable failure) {

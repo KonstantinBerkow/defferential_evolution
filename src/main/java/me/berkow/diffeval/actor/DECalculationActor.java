@@ -8,17 +8,15 @@ import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import akka.dispatch.Futures;
 import akka.pattern.Patterns;
+import me.berkow.diffeval.Algorithms;
 import me.berkow.diffeval.message.DEResult;
 import me.berkow.diffeval.message.DETask;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
-import me.berkow.diffeval.util.Util;
 import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.stream.StreamSupport;
@@ -34,61 +32,13 @@ public class DECalculationActor extends AbstractActor {
         this.port = port;
     }
 
-    private static Population createNewGeneration(final Population previousGeneration, DETask task, Random random) {
-        final int populationSize = task.getPopulationSize();
-        final List<me.berkow.diffeval.problem.Member> newVectors = new ArrayList<>(populationSize);
-
-        final Problem problem = task.getProblem();
-        final int size = problem.getSize();
-
-        final float crossoverProbability = task.getCrossoverProbability();
-        final float amplification = task.getAmplification();
-
-        final me.berkow.diffeval.problem.Member[] members = previousGeneration.getMembers();
-
-        final float[] lowerConstraints = problem.getLowerConstraints();
-        final float[] upperConstraints = problem.getUpperConstraints();
-
-        for (int i = 0; i < populationSize; i++) {
-            final me.berkow.diffeval.problem.Member oldVector = members[i];
-            final int[] indexes = Util.selectIndexes(0, populationSize, i, 3, random);
-            final int mandatoryIndex = random.nextInt(size);
-            final float[] newVector = new float[size];
-
-            for (int j = 0; j < size; j++) {
-                if (mandatoryIndex == j || random.nextDouble() < crossoverProbability) {
-                    newVector[j] = members[indexes[0]].get(j) + amplification * (members[indexes[1]].get(j) - members[indexes[2]].get(j));
-                } else {
-                    newVector[j] = oldVector.get(j);
-                }
-
-                final float min = lowerConstraints[j];
-                final float max = upperConstraints[j];
-
-                if (newVector[j] < min || max < newVector[j]) {
-                    newVector[j] = Util.nextFloat(min, max, random);
-                }
-            }
-
-            final me.berkow.diffeval.problem.Member member = new me.berkow.diffeval.problem.Member(newVector);
-
-            if (problem.calculate(member) < problem.calculate(oldVector)) {
-                newVectors.add(member);
-            } else {
-                newVectors.add(oldVector);
-            }
-        }
-
-        return new Population(newVectors.toArray(new me.berkow.diffeval.problem.Member[0]));
-    }
-
     private static DEResult de(DETask task, Random random) {
         Population previousGeneration = task.getInitialPopulation();
         final Problem problem = task.getProblem();
         int staleIterationsCount = 0;
         float previousValue = Float.NaN;
         for (int generation = 0; generation < task.getMaxIterationsCount(); generation++) {
-            final Population newVectors = createNewGeneration(previousGeneration, task, random);
+            final Population newVectors = Algorithms.createNewGeneration(previousGeneration, task, random);
 
             final float newValue = Problems.calculatePopulationValue(problem, newVectors);
 
