@@ -26,7 +26,7 @@ import java.util.Random;
  * Created by konstantinberkow on 5/8/17.
  */
 public class DETaskActor extends AbstractActor {
-    public static final String BACKEND_REGISTRATION = "register";
+    static final String BACKEND_REGISTRATION = "register";
 
     private final String port;
     private final List<ActorRef> backends;
@@ -131,7 +131,6 @@ public class DETaskActor extends AbstractActor {
         logger.info("iteration: {}", currentIterationCount);
         logger.info("new amplification: {}", result.getAmplification());
         logger.info("new crossover probability: {}", result.getCrossoverProbability());
-        logger.info("new average member: {}", Problems.calculateAverageMember(population));
 
         final Member[] members = result.getPopulation().getMembers();
         final int size = members.length;
