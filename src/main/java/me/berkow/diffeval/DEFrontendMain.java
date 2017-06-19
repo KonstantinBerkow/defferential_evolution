@@ -124,7 +124,6 @@ public class DEFrontendMain {
         }
 
         final int maxIterations = Util.getIntOrDefault(argsMap, "-maxIterations", 100);
-        final int maxStale = Util.getIntOrDefault(argsMap, "-maxStale", 10);
         final int problemId = Util.getIntOrDefault(argsMap, "-problemId", 5);
         final int populationSize = Util.getIntOrDefault(argsMap, "-populationSize", 100);
         final int splitCount = Util.getIntOrDefault(argsMap, "-splitCount", 10);
@@ -147,7 +146,7 @@ public class DEFrontendMain {
 
         final Population population = Problems.createRandomPopulation(populationSize, problem, random);
 
-        final MainDETask task = new MainDETask(maxIterations, maxStale, population,
+        final MainDETask task = new MainDETask(maxIterations, population,
                 amplification, crossoverProbability, splitCount, problem, precision);
 
         Patterns.ask(taskActorRef, task, 10000).transform(

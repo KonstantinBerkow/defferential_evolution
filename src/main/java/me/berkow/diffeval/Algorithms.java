@@ -2,7 +2,6 @@ package me.berkow.diffeval;
 
 import me.berkow.diffeval.message.DEResult;
 import me.berkow.diffeval.message.DETask;
-import me.berkow.diffeval.message.MainDEResult;
 import me.berkow.diffeval.problem.Member;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
@@ -16,7 +15,7 @@ import java.util.*;
  */
 public class Algorithms {
 
-    public static MainDEResult standardDE(DETask task, Random random) {
+    public static DEResult standardDE(DETask task, Random random) {
         final int maxIterationsCount = task.getMaxIterationsCount();
         final float amplification = task.getAmplification();
         final float crossoverProbability = task.getCrossoverProbability();
@@ -29,13 +28,11 @@ public class Algorithms {
             population = createNewGeneration(population, task, random);
 
             if (Problems.checkConvergence(population, problem, precision)) {
-                final DEResult result = new DEResult(population, amplification, crossoverProbability, problem);
-                return new MainDEResult(result, "converged population", i);
+                return new DEResult(population, amplification, crossoverProbability, problem, "converged population", i);
             }
         }
 
-        final DEResult result = new DEResult(population, amplification, crossoverProbability, problem);
-        return new MainDEResult(result, "max_iterations", maxIterationsCount);
+        return new DEResult(population, amplification, crossoverProbability, problem, "max_iterations", maxIterationsCount);
     }
 
     public static Population createNewGeneration(final Population previousGeneration, DETask task, Random random) {
@@ -106,7 +103,7 @@ public class Algorithms {
         final float[] lowerBounds = Util.getFloatArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
         final float[] upperBounds = Util.getFloatArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
 
-        final float precision = Util.getFloatOrDefault(argsMap, "-precision", 1e-12F);
+        final float precision = Util.getFloatOrDefault(argsMap, "-precision", 1e-6F);
 
         final Problem problem = Problems.createProblemWithConstraints(problemId, lowerBounds, upperBounds);
 
@@ -116,7 +113,7 @@ public class Algorithms {
 
         final DETask task = new DETask(maxIterations, population, amplification, crossoverProbability, problem, precision);
 
-        final MainDEResult result = standardDE(task, random);
+        final DEResult result = standardDE(task, random);
         System.out.printf("Result population: %s\n", result.getPopulation());
         System.out.printf("Result type: %s\n", result.getType());
         System.out.printf("Result iterations: %d\n", result.getIterationsCount());

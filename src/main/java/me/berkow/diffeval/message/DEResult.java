@@ -12,18 +12,23 @@ public class DEResult implements Serializable {
     private final float amplification;
     private final float crossoverProbability;
     private final Problem problem;
-
+    private final String type;
+    private final int iterationsCount;
     private float value = Float.NaN;
 
-    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem) {
+    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem,
+                    String type, int iterationsCount) {
         this.population = population;
         this.amplification = amplification;
         this.crossoverProbability = crossoverProbability;
         this.problem = problem;
+        this.type = type;
+        this.iterationsCount = iterationsCount;
     }
 
-    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem, float value) {
-        this(population, amplification, crossoverProbability, problem);
+    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem,
+                    String type, int iterationsCount, float value) {
+        this(population, amplification, crossoverProbability, problem, type, iterationsCount);
         this.value = value;
     }
 
@@ -50,14 +55,11 @@ public class DEResult implements Serializable {
         return value;
     }
 
-    @Override
-    public String toString() {
-        return "DEResult{" +
-                "population=" + population +
-                ", amplification=" + amplification +
-                ", crossoverProbability=" + crossoverProbability +
-                ", problem=" + problem +
-                ", value=" + value +
-                '}';
+    public String getType() {
+        return type;
+    }
+
+    public int getIterationsCount() {
+        return iterationsCount;
     }
 }

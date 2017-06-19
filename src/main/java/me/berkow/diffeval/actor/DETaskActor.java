@@ -158,9 +158,8 @@ public class DETaskActor extends AbstractActor {
             return;
         }
 
-        final MainDETask newTask = new MainDETask(maxIterationsCount, currentTask.getMaxStaleCount(),
-                population, amplification, crossoverProbability, currentTask.getSplitSize(), problem,
-                precision);
+        final MainDETask newTask = new MainDETask(maxIterationsCount, population, amplification, crossoverProbability,
+                currentTask.getSplitSize(), problem, precision);
 
         calculate(newTask, originalSender);
     }

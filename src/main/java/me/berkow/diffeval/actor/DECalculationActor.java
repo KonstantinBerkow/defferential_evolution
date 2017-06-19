@@ -11,9 +11,6 @@ import akka.pattern.Patterns;
 import me.berkow.diffeval.Algorithms;
 import me.berkow.diffeval.message.DEResult;
 import me.berkow.diffeval.message.DETask;
-import me.berkow.diffeval.problem.Population;
-import me.berkow.diffeval.problem.Problem;
-import me.berkow.diffeval.problem.Problems;
 import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 
@@ -30,33 +27,6 @@ public class DECalculationActor extends AbstractActor {
 
     public DECalculationActor(String port) {
         this.port = port;
-    }
-
-    private static DEResult de(DETask task, Random random) {
-        Population previousGeneration = task.getInitialPopulation();
-        final Problem problem = task.getProblem();
-        int staleIterationsCount = 0;
-        float previousValue = Float.NaN;
-        for (int generation = 0; generation < task.getMaxIterationsCount(); generation++) {
-            final Population newVectors = Algorithms.createNewGeneration(previousGeneration, task, random);
-
-            final float newValue = Problems.calculatePopulationValue(problem, newVectors);
-
-            if (Math.abs(newValue - previousValue) < task.getPrecision()) {
-                staleIterationsCount++;
-            } else {
-                staleIterationsCount = 0;
-            }
-
-            if (staleIterationsCount >= 10) {
-                return new DEResult(newVectors, task.getAmplification(), task.getCrossoverProbability(), task.getProblem(), newValue);
-            }
-
-            previousGeneration = newVectors;
-            previousValue = newValue;
-        }
-
-        return new DEResult(previousGeneration, task.getAmplification(), task.getCrossoverProbability(), task.getProblem(), previousValue);
     }
 
     @Override
@@ -98,7 +68,7 @@ public class DECalculationActor extends AbstractActor {
     }
 
     private Callable<DEResult> createCalculationCallable(final DETask task) {
-        return () -> de(task, random);
+        return () -> Algorithms.standardDE(task, random);
     }
 
     @Override
