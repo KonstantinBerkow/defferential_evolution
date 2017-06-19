@@ -9,6 +9,7 @@ import akka.event.LoggingAdapter;
 import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import me.berkow.diffeval.actor.DETaskActor;
 import me.berkow.diffeval.message.MainDEResult;
 import me.berkow.diffeval.message.MainDETask;
 import me.berkow.diffeval.problem.Population;

@@ -1,4 +1,4 @@
-package me.berkow.diffeval;
+package me.berkow.diffeval.actor;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorSystem;
