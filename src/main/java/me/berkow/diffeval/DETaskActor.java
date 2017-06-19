@@ -34,10 +34,6 @@ public class DETaskActor extends AbstractActor {
     private final Random random;
 
     private int currentIterationCount = 0;
-//    private int currentStaleParamsIterationsCount = 0;
-//    private float previousParamsValue = Float.NaN;
-//    private int currentStalePopulationIterationsCount = 0;
-//    private float previousPopulationValue = Float.NaN;
     private MainDETask currentTask = null;
 
     private LoggingAdapter logger;
@@ -104,12 +100,6 @@ public class DETaskActor extends AbstractActor {
                 .match(MainDETask.class, task -> {
                     currentIterationCount = 0;
 
-//                    currentStaleParamsIterationsCount = 0;
-//                    previousParamsValue = Float.NaN;
-//
-//                    currentStalePopulationIterationsCount = 0;
-//                    previousPopulationValue = Float.NaN;
-
                     currentTask = task;
 
                     calculate(task, getSender());
@@ -131,7 +121,6 @@ public class DETaskActor extends AbstractActor {
 
     private void proceedResults(DEResult result, ActorRef originalSender) {
         currentIterationCount++;
-//        currentStaleParamsIterationsCount = 0;
 
         final int maxIterationsCount = currentTask.getMaxIterationsCount();
         final float amplification = result.getAmplification();
@@ -140,46 +129,10 @@ public class DETaskActor extends AbstractActor {
         final Problem problem = result.getProblem();
         final float precision = currentTask.getPrecision();
 
-//        final float newParamsValue = amplification + crossoverProbability;
-//        if (Float.isNaN(previousParamsValue)) {
-//            previousParamsValue = newParamsValue;
-//        }
-
-//        final float newPopulationValue = result.getValue();
-//        if (Float.isNaN(previousPopulationValue)) {
-//            previousPopulationValue = newPopulationValue;
-//        }
-
         logger.info("iteration: {}", currentIterationCount);
         logger.info("new amplification: {}", result.getAmplification());
         logger.info("new crossover probability: {}", result.getCrossoverProbability());
-//        logger.info("new params value: {}", newParamsValue);
-//        logger.info("new average population value: {}", newPopulationValue);
         logger.info("new average member: {}", Util.calculateAverageMember(population));
-
-//        if (Math.abs(newParamsValue - previousParamsValue) < currentTask.getPrecision()) {
-//            currentStaleParamsIterationsCount++;
-//        } else {
-//            currentStaleParamsIterationsCount = 0;
-//            previousParamsValue = newParamsValue;
-//        }
-//
-//        if (currentStaleParamsIterationsCount >= currentTask.getMaxStaleCount()) {
-//            onCompleted(result, "stale_params", originalSender);
-//            return;
-//        }
-//
-//        if (Math.abs(newPopulationValue - previousPopulationValue) < currentTask.getPrecision()) {
-//            currentStalePopulationIterationsCount++;
-//        } else {
-//            currentStalePopulationIterationsCount = 0;
-//            previousPopulationValue = newPopulationValue;
-//        }
-//
-//        if (currentStalePopulationIterationsCount >= currentTask.getMaxStaleCount()) {
-//            onCompleted(result, "stale_population", originalSender);
-//            return;
-//        }
 
         if (Problems.checkConvergence(population, problem, precision)) {
             onCompleted(result, "converged_population", originalSender);
