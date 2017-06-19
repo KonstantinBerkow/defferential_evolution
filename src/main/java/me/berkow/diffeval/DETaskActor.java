@@ -9,10 +9,8 @@ import akka.dispatch.Mapper;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Pair;
-import akka.japi.pf.FI;
 import akka.pattern.Patterns;
 import me.berkow.diffeval.message.*;
-import scala.Function1;
 import scala.concurrent.Future;
 
 import java.util.ArrayList;
@@ -93,57 +91,36 @@ public class DETaskActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(MainDETask.class, new FI.TypedPredicate<MainDETask>() {
-                    @Override
-                    public boolean defined(MainDETask task) {
-                        return backends.isEmpty();
-                    }
-                }, new FI.UnitApply<MainDETask>() {
-                    @Override
-                    public void apply(MainDETask task) throws Exception {
-                        TaskFailedMsg message = new TaskFailedMsg("Service unavailable, try again later", task);
-                        sender().tell(message, sender());
-                    }
+                .match(MainDETask.class, task -> backends.isEmpty(), task -> {
+                    TaskFailedMsg message = new TaskFailedMsg("Service unavailable, try again later", task);
+                    final ActorRef sender = getSender();
+                    sender.tell(message, sender);
                 })
-                .match(MainDETask.class, new FI.UnitApply<MainDETask>() {
-                    @Override
-                    public void apply(MainDETask task) throws Exception {
-                        currentIterationCount = 0;
+                .match(MainDETask.class, task -> {
+                    currentIterationCount = 0;
 
-                        currentStaleParamsIterationsCount = 0;
-                        previousParamsValue = Float.NaN;
+                    currentStaleParamsIterationsCount = 0;
+                    previousParamsValue = Float.NaN;
 
-                        currentStalePopulationIterationsCount = 0;
-                        previousPopulationValue = Float.NaN;
+                    currentStalePopulationIterationsCount = 0;
+                    previousPopulationValue = Float.NaN;
 
-                        currentTask = task;
+                    currentTask = task;
 
-                        calculate(task, sender());
-                    }
+                    calculate(task, getSender());
                 })
-                .match(Pair.class, new FI.UnitApply<Pair>() {
-                    @Override
-                    public void apply(Pair pair) throws Exception {
-                        final DEResult result = (DEResult) pair.first();
-                        final ActorRef originalSender = (ActorRef) pair.second();
+                .match(Pair.class, pair -> {
+                    final DEResult result = (DEResult) pair.first();
+                    final ActorRef originalSender = (ActorRef) pair.second();
 
-                        proceedResults(result, originalSender);
-                    }
+                    proceedResults(result, originalSender);
                 })
-                .matchEquals(BACKEND_REGISTRATION, new FI.UnitApply<String>() {
-                    @Override
-                    public void apply(String $) throws Exception {
-                        final ActorRef sender = sender();
-                        context().watch(sender);
-                        backends.add(sender);
-                    }
+                .matchEquals(BACKEND_REGISTRATION, $ -> {
+                    final ActorRef sender = getSender();
+                    getContext().watch(sender);
+                    backends.add(sender);
                 })
-                .match(Terminated.class, new FI.UnitApply<Terminated>() {
-                    @Override
-                    public void apply(Terminated terminated) throws Exception {
-                        backends.remove(terminated.getActor());
-                    }
-                })
+                .match(Terminated.class, terminated -> backends.remove(terminated.getActor()))
                 .build();
     }
 
@@ -208,7 +185,7 @@ public class DETaskActor extends AbstractActor {
 
     private void onCompleted(DEResult result, String type, ActorRef originalSender) {
         final MainDEResult mainDEResult = new MainDEResult(result, type, currentIterationCount);
-        originalSender.tell(mainDEResult, self());
+        originalSender.tell(mainDEResult, getSelf());
     }
 
     @Override
@@ -218,7 +195,7 @@ public class DETaskActor extends AbstractActor {
     }
 
     private void calculate(MainDETask task, final ActorRef originalSender) {
-        final ActorSystem system = context().system();
+        final ActorSystem system = getContext().getSystem();
 
         logger.debug("Calculate from: {}, by: {}", task.getPopulation(), this);
 
@@ -242,12 +219,7 @@ public class DETaskActor extends AbstractActor {
                         public DEResult apply(Object parameter) {
                             return (DEResult) parameter;
                         }
-                    }, new Function1<Throwable, Throwable>() {
-                        @Override
-                        public Throwable apply(Throwable v1) {
-                            return v1;
-                        }
-                    }, system.dispatcher());
+                    }, error -> error, system.dispatcher());
 
             futures.add(future);
         }
@@ -259,14 +231,11 @@ public class DETaskActor extends AbstractActor {
             public Pair<DEResult, ActorRef> apply(Iterable<DEResult> results) {
                 return new Pair<>(selectResult(results), originalSender);
             }
-        }, new Function1<Throwable, Throwable>() {
-            @Override
-            public Throwable apply(Throwable v1) {
-                return v1;
-            }
-        }, system.dispatcher());
+        }, error -> error, system.dispatcher());
 
-        Patterns.pipe(resultFuture, system.dispatcher()).to(self(), self());
+        final ActorRef self = getSelf();
+
+        Patterns.pipe(resultFuture, system.dispatcher()).to(self, self);
     }
 
     @Override

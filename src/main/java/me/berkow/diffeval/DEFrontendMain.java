@@ -14,7 +14,6 @@ import me.berkow.diffeval.message.MainDETask;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
-import scala.Function1;
 
 import java.io.Console;
 import java.io.IOException;
@@ -39,7 +38,7 @@ public class DEFrontendMain {
             argsMap.put(args[i], args[i + 1]);
         }
 
-        final String port = argsMap.containsKey("-port") ? argsMap.get("-port") : "0";
+        final String port = argsMap.getOrDefault("-port", "0");
 
         Config config = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + port);
 
@@ -149,17 +148,9 @@ public class DEFrontendMain {
         final MainDETask task = new MainDETask(maxIterations, maxStale, population,
                 amplification, crossoverProbability, splitCount, problem, precision);
 
-        Patterns.ask(taskActorRef, task, 10000).transform(new Function1<Object, MainDEResult>() {
-            @Override
-            public MainDEResult apply(Object v1) {
-                return (MainDEResult) v1;
-            }
-        }, new Function1<Throwable, Throwable>() {
-            @Override
-            public Throwable apply(Throwable error) {
-                return error;
-            }
-        }, system.dispatcher()).onComplete(new OnComplete<MainDEResult>() {
+        Patterns.ask(taskActorRef, task, 10000).transform(
+                value -> (MainDEResult) value,
+                error -> error, system.dispatcher()).onComplete(new OnComplete<MainDEResult>() {
             @Override
             public void onComplete(Throwable failure, MainDEResult success) throws Throwable {
                 sCanProcessInput = true;

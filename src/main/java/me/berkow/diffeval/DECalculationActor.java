@@ -7,19 +7,20 @@ import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import akka.dispatch.Futures;
-import akka.japi.pf.FI;
 import akka.pattern.Patterns;
 import me.berkow.diffeval.message.DEResult;
 import me.berkow.diffeval.message.DETask;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
+import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.stream.StreamSupport;
 
 
 public class DECalculationActor extends AbstractActor {
@@ -109,60 +110,44 @@ public class DECalculationActor extends AbstractActor {
 
     @Override
     public void preStart() throws Exception {
-        final ActorSystem system = context().system();
+        final ActorSystem system = getContext().getSystem();
 
         cluster = Cluster.get(system);
-        cluster.subscribe(self(), ClusterEvent.MemberUp.class);
+        cluster.subscribe(getSelf(), ClusterEvent.MemberUp.class);
     }
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(DETask.class, new FI.UnitApply<DETask>() {
-                    @Override
-                    public void apply(DETask task) throws Exception {
-                        final Future<DEResult> result = Futures.future(createCalculationCallable(task), context().system().dispatcher());
+                .match(DETask.class, task -> {
+                    final ExecutionContextExecutor dispatcher = getContext().getSystem().dispatcher();
+                    final Future<DEResult> result = Futures.future(createCalculationCallable(task), dispatcher);
 
-                        Patterns.pipe(result, context().system().dispatcher()).to(sender(), self());
-                    }
+                    Patterns.pipe(result, dispatcher).to(getSender(), getSelf());
                 })
-                .match(ClusterEvent.CurrentClusterState.class, new FI.UnitApply<ClusterEvent.CurrentClusterState>() {
-                    @Override
-                    public void apply(ClusterEvent.CurrentClusterState state) throws Exception {
-                        for (Member member : state.getMembers()) {
-                            if (member.status().equals(MemberStatus.up())) {
-                                register(member);
-                            }
-                        }
-                    }
+                .match(ClusterEvent.CurrentClusterState.class, state -> {
+                    StreamSupport.stream(state.getMembers().spliterator(), false)
+                            .filter(member -> member.status().equals(MemberStatus.up()))
+                            .forEach(this::register);
                 })
-                .match(ClusterEvent.MemberUp.class, new FI.UnitApply<ClusterEvent.MemberUp>() {
-                    @Override
-                    public void apply(ClusterEvent.MemberUp mUp) throws Exception {
-                        register(mUp.member());
-                    }
-                })
+                .match(ClusterEvent.MemberUp.class, mUp -> register(mUp.member()))
                 .build();
     }
 
     @Override
     public void postStop() {
-        cluster.unsubscribe(self());
+        cluster.unsubscribe(getSelf());
     }
 
     private void register(Member member) {
         if (member.hasRole("frontend")) {
-            context().actorSelection(member.address() + "/user/frontend").tell(DETaskActor.BACKEND_REGISTRATION, self());
+            getContext().actorSelection(member.address() + "/user/frontend")
+                    .tell(DETaskActor.BACKEND_REGISTRATION, getSelf());
         }
     }
 
     private Callable<DEResult> createCalculationCallable(final DETask task) {
-        return new Callable<DEResult>() {
-            @Override
-            public DEResult call() throws Exception {
-                return de(task, random);
-            }
-        };
+        return () -> de(task, random);
     }
 
     @Override
