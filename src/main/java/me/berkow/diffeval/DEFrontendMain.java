@@ -12,6 +12,7 @@ import com.typesafe.config.ConfigFactory;
 import me.berkow.diffeval.actor.DETaskActor;
 import me.berkow.diffeval.message.MainDEResult;
 import me.berkow.diffeval.message.MainDETask;
+import me.berkow.diffeval.problem.Member;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
@@ -25,6 +26,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -138,7 +140,7 @@ public class DEFrontendMain {
         final float[] lowerBounds = Util.getFloatArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
         final float[] upperBounds = Util.getFloatArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
 
-        final float precision = Util.getFloatOrDefault(argsMap, "-precision", 1e-12F);
+        final int precision = Util.getIntOrDefault(argsMap, "-precision", 6);
 
         final Problem problem = Problems.createProblemWithConstraints(problemId, lowerBounds, upperBounds);
 
@@ -149,6 +151,8 @@ public class DEFrontendMain {
         final MainDETask task = new MainDETask(maxIterations, population,
                 amplification, crossoverProbability, splitCount, problem, precision);
 
+        final long nanoTime = System.nanoTime();
+
         Patterns.ask(taskActorRef, task, 10000).transform(
                 value -> (MainDEResult) value,
                 error -> error, system.dispatcher()).onComplete(new OnComplete<MainDEResult>() {
@@ -156,7 +160,7 @@ public class DEFrontendMain {
             public void onComplete(Throwable failure, MainDEResult success) throws Throwable {
                 sCanProcessInput = true;
                 if (failure == null) {
-                    onCompleted(system, problemId, success, logger);
+                    onCompleted(system, problemId, success, logger, task, System.nanoTime() - nanoTime);
                 } else {
                     onFailure(system, failure);
                 }
@@ -164,9 +168,15 @@ public class DEFrontendMain {
         }, system.dispatcher());
     }
 
-    private static void onCompleted(ActorSystem system, int taskId, MainDEResult result, LoggingAdapter logger) {
+    private static void onCompleted(ActorSystem system, int taskId, MainDEResult result, LoggingAdapter logger,
+                                    MainDETask task, long timeConsumed) {
+        final NumberFormat format = NumberFormat.getInstance();
+        format.setMaximumFractionDigits(task.getPrecision());
+
         Path file = Paths.get("task#" + taskId + ".csv");
-        final String dump = taskId + ";" + Problems.calculateAverageMember(result.getPopulation()) + ";" + result.getIterationsCount();
+        final Member averageMember = Problems.calculateAverageMember(result.getPopulation());
+        final String formattedAverage = Util.prettyFloatArray(averageMember.toArray(), format);
+        final String dump = taskId + ";" + formattedAverage + ";" + result.getIterationsCount();
         try {
             Files.write(file, Collections.singletonList(dump), Charset.forName("UTF-8"));
         } catch (IOException e) {
@@ -175,7 +185,9 @@ public class DEFrontendMain {
 
         logger.info("Completed due: {}", result.getType());
         logger.info("Result iterations: {}", result.getIterationsCount());
-        logger.info("Result population: {}", result.getPopulation());
+        logger.info("Result population average: {}", formattedAverage);
+        logger.info("Average value: {}", task.getProblem().calculate(averageMember));
+        logger.info("Time consumed: {}", Util.prettyNumber(timeConsumed / 1000000000.0, format));
     }
 
     private static void onFailure(ActorSystem system, Throwable failure) {

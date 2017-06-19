@@ -8,6 +8,7 @@ import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
 import me.berkow.diffeval.util.Util;
 
+import java.text.NumberFormat;
 import java.util.*;
 
 /**
@@ -20,7 +21,7 @@ public class Algorithms {
         final float amplification = task.getAmplification();
         final float crossoverProbability = task.getCrossoverProbability();
         final Problem problem = task.getProblem();
-        final float precision = task.getPrecision();
+        final double precision = 1.0 / Math.pow(10, task.getPrecision());
 
         Population population = task.getInitialPopulation();
 
@@ -103,7 +104,10 @@ public class Algorithms {
         final float[] lowerBounds = Util.getFloatArrayOrThrow(argsMap, "-lowerBounds", "Supply lower bounds!");
         final float[] upperBounds = Util.getFloatArrayOrThrow(argsMap, "-upperBounds", "Supply upper bounds!");
 
-        final float precision = Util.getFloatOrDefault(argsMap, "-precision", 1e-6F);
+        final int precision = Util.getIntOrDefault(argsMap, "-precision", 6);
+
+        final NumberFormat format = NumberFormat.getInstance();
+        format.setMaximumFractionDigits(precision);
 
         final Problem problem = Problems.createProblemWithConstraints(problemId, lowerBounds, upperBounds);
 
@@ -113,9 +117,16 @@ public class Algorithms {
 
         final DETask task = new DETask(maxIterations, population, amplification, crossoverProbability, problem, precision);
 
+        final long nanoTime = System.nanoTime();
+
         final DEResult result = standardDE(task, random);
         System.out.printf("Result population: %s\n", result.getPopulation());
         System.out.printf("Result type: %s\n", result.getType());
         System.out.printf("Result iterations: %d\n", result.getIterationsCount());
+
+        final Member averageMember = Problems.calculateAverageMember(result.getPopulation());
+        System.out.printf("Result average member: %s\n", Util.prettyFloatArray(averageMember.toArray(), format));
+        System.out.printf("Value: %s\n", Util.prettyNumber(problem.calculate(averageMember), format));
+        System.out.printf("Time consumed: %s\n", Util.prettyNumber((System.nanoTime() - nanoTime) / 1000000000.0, format));
     }
 }

@@ -9,12 +9,6 @@ import java.util.*;
 @SuppressWarnings("SameParameterValue")
 public final class Util {
 
-    private static final NumberFormat FORMAT = NumberFormat.getInstance();
-
-    static {
-        FORMAT.setMaximumFractionDigits(6);
-    }
-
     public static int[] selectIndexes(int from, int to, int except, int quantity, Random random) {
         final List<Integer> allowedInts = new ArrayList<>();
 
@@ -150,7 +144,7 @@ public final class Util {
     }
 
 
-    public static String prettyFloatArray(float[] array) {
+    public static String prettyFloatArray(float[] array, NumberFormat format) {
         if (array == null)
             return "null";
 
@@ -161,14 +155,14 @@ public final class Util {
         StringBuilder b = new StringBuilder();
         b.append('[');
         for (int i = 0; ; i++) {
-            b.append(FORMAT.format(array[i]));
+            b.append(format.format(array[i]));
             if (i == iMax)
                 return b.append(']').toString();
             b.append(", ");
         }
     }
 
-    public static String prettyNumber(float value) {
-        return FORMAT.format(value);
+    public static String prettyNumber(double value, NumberFormat format) {
+        return format.format(value);
     }
 }

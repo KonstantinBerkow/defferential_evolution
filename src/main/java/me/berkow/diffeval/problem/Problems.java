@@ -282,7 +282,7 @@ public final class Problems {
         return value / population.size();
     }
 
-    public static boolean checkConvergence(Population population, Problem problem, float precision) {
+    public static boolean checkConvergence(Population population, Problem problem, double precision) {
         final Member[] members = population.getMembers();
         final int size = members.length;
         float[] values = new float[size];

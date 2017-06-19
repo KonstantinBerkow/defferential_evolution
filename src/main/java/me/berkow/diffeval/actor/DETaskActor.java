@@ -17,6 +17,7 @@ import me.berkow.diffeval.problem.Problems;
 import me.berkow.diffeval.util.Util;
 import scala.concurrent.Future;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,11 +32,10 @@ public class DETaskActor extends AbstractActor {
     private final String port;
     private final List<ActorRef> backends;
     private final Random random;
-
+    private final LoggingAdapter logger = Logging.getLogger(this);
+    private final NumberFormat format = NumberFormat.getInstance();
     private int currentIterationCount = 0;
     private MainDETask currentTask = null;
-
-    private LoggingAdapter logger;
 
     public DETaskActor(String port) {
         this.port = port;
@@ -83,8 +83,6 @@ public class DETaskActor extends AbstractActor {
 
     @Override
     public void preStart() throws Exception {
-        logger = Logging.getLogger(this);
-
         logger.debug("{} pre start!", this);
     }
 
@@ -100,6 +98,7 @@ public class DETaskActor extends AbstractActor {
                     currentIterationCount = 0;
 
                     currentTask = task;
+                    format.setMaximumFractionDigits(task.getPrecision());
 
                     calculate(task, getSender());
                 })
@@ -126,7 +125,7 @@ public class DETaskActor extends AbstractActor {
         final float crossoverProbability = result.getCrossoverProbability();
         final Population population = result.getPopulation();
         final Problem problem = result.getProblem();
-        final float precision = currentTask.getPrecision();
+        final int precision = currentTask.getPrecision();
 
         logger.info("iteration: {}", currentIterationCount);
         logger.info("new amplification: {}", result.getAmplification());
@@ -139,8 +138,8 @@ public class DETaskActor extends AbstractActor {
             for (int j = i + 1; j < size; j++) {
                 final float diff = Math.abs(problem.calculate(members[i]) - problem.calculate(members[j]));
                 if (diff >= precision) {
-                    logger.info("Difference {}", Util.prettyNumber(diff));
-                    final String formattedComponents = Util.prettyFloatArray(Problems.componentsDiff(members[i], members[j]));
+                    logger.info("Difference {}", Util.prettyNumber(diff, format));
+                    final String formattedComponents = Util.prettyFloatArray(Problems.componentsDiff(members[i], members[j]), format);
                     logger.info("Component differences: {}", formattedComponents);
                     stop = true;
                     break;
@@ -148,7 +147,7 @@ public class DETaskActor extends AbstractActor {
             }
         }
 
-        if (Problems.checkConvergence(population, problem, precision)) {
+        if (Problems.checkConvergence(population, problem, 1.0 / Math.pow(10, precision))) {
             onCompleted(result, "converged_population", originalSender);
             return;
         }

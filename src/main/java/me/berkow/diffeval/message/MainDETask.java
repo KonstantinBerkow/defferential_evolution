@@ -16,10 +16,10 @@ public class MainDETask implements Serializable {
     private final float crossoverProbability;
     private final int splitSize;
     private final Problem problem;
-    private final float precision;
+    private final int precision;
 
     public MainDETask(int maxIterationsCount, Population population, float amplification,
-                      float crossoverProbability, int splitSize, Problem problem, float precision) {
+                      float crossoverProbability, int splitSize, Problem problem, int precision) {
         this.maxIterationsCount = maxIterationsCount;
         this.population = population;
         this.amplification = amplification;
@@ -53,7 +53,7 @@ public class MainDETask implements Serializable {
         return problem;
     }
 
-    public float getPrecision() {
+    public int getPrecision() {
         return precision;
     }
 

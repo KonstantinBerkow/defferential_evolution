@@ -1,7 +1,5 @@
 package me.berkow.diffeval.problem;
 
-import me.berkow.diffeval.util.Util;
-
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -45,6 +43,8 @@ public class Member implements Serializable {
 
     @Override
     public String toString() {
-        return Util.prettyFloatArray(innerVector);
+        return "Member{" +
+                "innerVector=" + Arrays.toString(innerVector) +
+                '}';
     }
 }
