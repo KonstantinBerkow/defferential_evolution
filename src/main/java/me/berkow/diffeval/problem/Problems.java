@@ -3,8 +3,12 @@ package me.berkow.diffeval.problem;
 import me.berkow.diffeval.util.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.function.IntFunction;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by konstantinberkow on 5/11/17.
@@ -280,5 +284,25 @@ public final class Problems {
         }
 
         return value / population.size();
+    }
+
+    public static boolean checkConvergence(Population population, Problem problem, float precision) {
+        final Member[] members = population.getMembers();
+        final int size = members.length;
+        float[] values = new float[size];
+        for (int i = 0; i < size; i++) {
+            values[i] = problem.calculate(members[i]);
+        }
+
+        for (int i = 0; i < size; i++) {
+            for (int j = i + 1; j < size; j++) {
+                final float diff = Math.abs(values[i] - values[j]);
+                if (diff >= precision) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
