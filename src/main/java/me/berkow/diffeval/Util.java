@@ -155,7 +155,6 @@ public final class Util {
         }
         for (int i = 0, resLength = res.length; i < resLength; i++) {
             res[i] /= population.size();
-
         }
         return new Member(res);
     }
