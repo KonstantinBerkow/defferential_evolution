@@ -15,6 +15,7 @@ import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
 import me.berkow.diffeval.util.Util;
+import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 
 import java.text.NumberFormat;
@@ -181,6 +182,8 @@ public class DETaskActor extends AbstractActor {
 
         final int splitSize = task.getSplitSize();
 
+        final ExecutionContextExecutor dispatcher = system.dispatcher();
+
         final List<DETask> tasks = new ArrayList<>(splitSize);
         tasks.add(createTask(task));
         for (int i = 1; i < splitSize; i++) {
@@ -194,19 +197,19 @@ public class DETaskActor extends AbstractActor {
             logger.debug("new control values F: {}, CR: {}", splitedTask.getAmplification(), splitedTask.getCrossoverProbability());
 
             final Future<DEResult> future = Patterns.ask(backends.get(i % backends.size()), splitedTask, 10000)
-                    .transform(result -> (DEResult) result, error -> error, system.dispatcher());
+                    .transform(result -> (DEResult) result, error -> error, dispatcher);
 
             futures.add(future);
         }
 
-        final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, system.dispatcher());
+        final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, dispatcher);
 
         final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture
-                .transform(results -> new Pair<>(selectResult(results), originalSender), error -> error, system.dispatcher());
+                .transform(results -> new Pair<>(selectResult(results), originalSender), error -> error, dispatcher);
 
         final ActorRef self = getSelf();
 
-        Patterns.pipe(resultFuture, system.dispatcher()).to(self, self);
+        Patterns.pipe(resultFuture, dispatcher).to(self, self);
     }
 
     @Override
