@@ -35,8 +35,10 @@ public class DETaskActor extends AbstractActor {
     private final Random random;
     private final LoggingAdapter logger = Logging.getLogger(this);
     private final NumberFormat format = NumberFormat.getInstance();
+
     private int currentIterationCount = 0;
     private MainDETask currentTask = null;
+    private float previousValue;
 
     public DETaskActor(String port) {
         this.port = port;
@@ -107,6 +109,7 @@ public class DETaskActor extends AbstractActor {
                 })
                 .match(MainDETask.class, task -> {
                     currentIterationCount = 0;
+                    previousValue = Problems.calculatePopulationValue(task.getProblem(), task.getPopulation());
 
                     currentTask = task;
                     format.setMaximumFractionDigits(task.getPrecision());
@@ -137,28 +140,32 @@ public class DETaskActor extends AbstractActor {
         final Population population = result.getPopulation();
         final Problem problem = result.getProblem();
         final int precision = currentTask.getPrecision();
+        final float newValue = result.getValue();
 
         logger.info("iteration: {}", currentIterationCount);
         logger.info("new amplification: {}", result.getAmplification());
         logger.info("new crossover probability: {}", result.getCrossoverProbability());
+        logger.info("new population value: {}", result.getValue());
+        logger.info("diff: {}", Math.abs(newValue - previousValue));
 
-        final Member[] members = result.getPopulation().getMembers();
-        final int size = members.length;
-        boolean stop = false;
-        for (int i = 0; i < size && !stop; i++) {
-            for (int j = i + 1; j < size; j++) {
-                final float diff = Math.abs(problem.calculate(members[i]) - problem.calculate(members[j]));
-                if (diff >= precision) {
-                    logger.info("Difference {}", Util.prettyNumber(diff, format));
-                    final String formattedComponents = Util.prettyFloatArray(Problems.componentsDiff(members[i], members[j]), format);
-                    logger.info("Component differences: {}", formattedComponents);
-                    stop = true;
-                    break;
-                }
-            }
-        }
+//        final Member[] members = result.getPopulation().getMembers();
+//        final int size = members.length;
+//        boolean stop = false;
+//        for (int i = 0; i < size && !stop; i++) {
+//            for (int j = i + 1; j < size; j++) {
+//                final float diff = Math.abs(problem.calculate(members[i]) - problem.calculate(members[j]));
+//                if (diff >= precision) {
+//                    logger.info("Difference {}", Util.prettyNumber(diff, format));
+//                    final String formattedComponents = Util.prettyFloatArray(Problems.componentsDiff(members[i], members[j]), format);
+//                    logger.info("Component differences: {}", formattedComponents);
+//                    stop = true;
+//                    break;
+//                }
+//            }
+//        }
 
-        if (Problems.checkConvergence(population, problem, 1.0 / Math.pow(10, precision))) {
+//        if (Problems.checkConvergence(population, problem, 1.0 / Math.pow(10, precision))) {
+        if (Math.abs(newValue - previousValue) < 1.0 / Math.pow(10, precision)) {
             onCompleted(result, "converged_population", originalSender);
             return;
         }
@@ -170,6 +177,8 @@ public class DETaskActor extends AbstractActor {
 
         final MainDETask newTask = new MainDETask(maxIterationsCount, population, amplification, crossoverProbability,
                 currentTask.getSplitSize(), problem, precision);
+
+        previousValue = newValue;
 
         calculate(newTask, originalSender);
     }

@@ -24,16 +24,20 @@ public class Algorithms {
         final double precision = 1.0 / Math.pow(10, task.getPrecision());
 
         Population population = task.getInitialPopulation();
-
+        float previousValue = Problems.calculatePopulationValue(problem, population);
         for (int i = 0; i < maxIterationsCount; i++) {
             population = createNewGeneration(population, task, random);
 
-            if (Problems.checkConvergence(population, problem, precision)) {
-                return new DEResult(population, amplification, crossoverProbability, problem, "converged population", i);
+            final float newValue = Problems.calculatePopulationValue(problem, population);
+
+            if (Math.abs(newValue - previousValue) < precision) {
+                return new DEResult(population, amplification, crossoverProbability, problem, "converged population", i, newValue);
             }
+
+            previousValue = newValue;
         }
 
-        return new DEResult(population, amplification, crossoverProbability, problem, "max_iterations", maxIterationsCount);
+        return new DEResult(population, amplification, crossoverProbability, problem, "max_iterations", maxIterationsCount, previousValue);
     }
 
     public static Population createNewGeneration(final Population previousGeneration, DETask task, Random random) {
