@@ -67,8 +67,10 @@ public class Algorithms {
                 final float min = lowerConstraints[j];
                 final float max = upperConstraints[j];
 
-                if (newVector[j] < min || max < newVector[j]) {
-                    newVector[j] = Util.nextFloat(min, max, random);
+                if (newVector[j] < min) {
+                    newVector[j] = min;
+                } else if (max < newVector[j]) {
+                    newVector[j] = max;
                 }
             }
 
