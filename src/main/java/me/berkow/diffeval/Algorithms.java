@@ -90,7 +90,7 @@ public class Algorithms {
             argsMap.put(args[i], args[i + 1]);
         }
 
-        final int maxIterations = Util.getIntOrDefault(argsMap, "-maxIterations", 100);
+        final int maxIterations = Util.getIntOrDefault(argsMap, "-maxIterations", 1000);
         final int problemId = Util.getIntOrDefault(argsMap, "-problemId", 5);
         final int populationSize = Util.getIntOrDefault(argsMap, "-populationSize", 100);
         final long randomSeed = Util.getLongOrDefault(argsMap, "-randomSeed", -1);
