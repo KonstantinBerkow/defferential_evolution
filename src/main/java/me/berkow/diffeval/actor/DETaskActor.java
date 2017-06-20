@@ -53,11 +53,21 @@ public class DETaskActor extends AbstractActor {
         final float f0 = task.getAmplification();
         final float c0 = task.getCrossoverProbability();
 
-        final float rawF = f0 + (random.nextFloat() - 0.5F) / 2F;
-        final float newF = Math.max(0F, Math.min(rawF, 2F));
+//        final float rawF = f0 + (random.nextFloat() - 0.5F) / 2F;
+//        final float newF = Math.max(0F, Math.min(rawF, 2F));
+//
+//        final float rawC = c0 + (random.nextFloat() - 0.5F) / 4F;
+//        final float newC = Math.max(0F, Math.min(rawC, 1F));
 
-        final float rawC = c0 + (random.nextFloat() - 0.5F) / 4F;
-        final float newC = Math.max(0F, Math.min(rawC, 1F));
+        float newF = f0;
+        while (newF == f0) {
+            newF = Util.nextFloat(0, 2, random);
+        }
+
+        float newC = c0;
+        while (newC == c0) {
+            newC = Util.nextFloat(0, 1, random);
+        }
 
         return new DETask(task.getMaxIterationsCount(), task.getPopulation(), newF, newC, task.getProblem(), task.getPrecision());
     }
