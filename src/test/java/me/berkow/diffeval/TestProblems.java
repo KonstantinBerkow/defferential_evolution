@@ -31,6 +31,27 @@ public class TestProblems {
     }
 
     @Test
+    public void testProblem7() {
+        Assert.assertEquals(
+                0,
+                Problems.calculateProblem7(new float[]{0, 0, 0, 0}),
+                0.0001
+        );
+
+        Assert.assertEquals(
+                418.98287762 * 8,
+                Problems.calculateProblem7(new float[]{420.96F, 420.96F, 420.96F, 420.96F, 420.96F, 420.96F, 420.96F, 420.96F}),
+                0.0001
+        );
+
+        Assert.assertEquals(
+                -418.98287762 * 8,
+                Problems.calculateProblem7(new float[]{-420.96F, -420.96F, -420.96F, -420.96F, -420.96F, -420.96F, -420.96F, -420.96F}),
+                0.0001
+        );
+    }
+
+    @Test
     public void testProblem10() {
         Assert.assertEquals(
                 0,
@@ -40,7 +61,7 @@ public class TestProblems {
     }
 
     @Test
-    public void testProblem11() {
+    public void testProblem12() {
         Assert.assertEquals(
                 0,
                 Problems.calculateProblem12(new float[]{0, 0, 0, 0}),
