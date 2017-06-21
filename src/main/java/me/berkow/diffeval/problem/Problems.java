@@ -145,6 +145,53 @@ public final class Problems {
         return f1Result / 4000 - product + 1;
     }
 
+    //Goldstein3 with penalty
+    public static float calculateProblem11(float[] vector) {
+        float penalty = 0;
+
+        for (int i = 0; i < vector.length; i++) {
+            penalty += penalty(vector[i], 10, 100, 4);
+        }
+
+        return goldstein3(vector) + penalty;
+    }
+
+    //Goldstein3
+    public static float goldstein3(float[] array) {
+        final int size = array.length;
+
+        float result = 0;
+
+        {
+            final double tmp = Math.sin(Math.PI * array[0]);
+            result += 10 * tmp * tmp;
+        }
+
+        for (int i = 0; i < size - 1; i++) {
+            final float tmp1 = array[i] - 1;
+            final double tmp2 = Math.sin(Math.PI * array[i + 1]);
+
+            result += tmp1 * tmp1 * (1 + 10 * tmp2 * tmp2);
+        }
+
+        {
+            final double tmp = array[size - 1] - 1;
+            result += tmp * tmp;
+        }
+
+        return (float) (Math.PI * result / size);
+    }
+
+    public static float penalty(float z, float a, float k, float m) {
+        if (z > a) {
+            return (float) (k * Math.pow(z - a, m));
+        } else if (z < -a) {
+            return (float) (k * Math.pow(-z - a, m));
+        } else {
+            return 0;
+        }
+    }
+
     public static float calculateProblem12(float[] vector) {
         float result = 0;
         final int n = vector.length;
@@ -234,6 +281,13 @@ public final class Problems {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem10(vector.toArray());
+                    }
+                };
+            case 11:
+                return new Problem(lowerBounds, upperBounds) {
+                    @Override
+                    public float calculate(Member vector) {
+                        return calculateProblem11(vector.toArray());
                     }
                 };
             case 12:
