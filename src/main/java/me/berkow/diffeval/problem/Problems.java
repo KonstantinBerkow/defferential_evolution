@@ -24,6 +24,7 @@ public final class Problems {
         }
     }
 
+    //Sphere
     public static float calculateProblem1(float[] vector) {
         float sum = 0;
 
@@ -71,6 +72,7 @@ public final class Problems {
         return max;
     }
 
+    // Rosenbrock
     public static float calculateProblem5(float[] vector) {
         float sum = 0;
 
@@ -105,7 +107,20 @@ public final class Problems {
         return sum;
     }
 
+    //Rastrigin
     public static float calculateProblem8(float[] vector) {
+        float sum = 0;
+
+        for (int i = 0; i < vector.length; i++) {
+            float x = vector[i];
+            sum += (x * x - 10 * Math.cos(2 * Math.PI * x) + 10);
+        }
+
+        return sum;
+    }
+
+    //Ackley’s
+    public static float calculateProblem9(float[] vector) {
         float tmp1 = calculateProblem1(vector);
         float part1 = (float) (20 * Math.exp(-0.2 * Math.sqrt(tmp1)));
 
@@ -118,17 +133,7 @@ public final class Problems {
         return (float) (-part1 - part2 + 20 + Math.E);
     }
 
-    public static float calculateProblem9(float[] vector) {
-        float sum = 0;
-
-        for (int i = 0; i < vector.length; i++) {
-            float x = vector[i];
-            sum += (x * x - 10 * Math.cos(2 * Math.PI * x) + 10);
-        }
-
-        return sum;
-    }
-
+    //Griewangk
     public static float calculateProblem10(float[] vector) {
         float f1Result = calculateProblem1(vector);
 
