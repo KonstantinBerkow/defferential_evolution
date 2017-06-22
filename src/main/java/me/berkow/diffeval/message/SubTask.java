@@ -1,7 +1,7 @@
 package me.berkow.diffeval.message;
 
 import me.berkow.diffeval.problem.Population;
-import me.berkow.diffeval.problem.Problem;
+import me.berkow.diffeval.Problem;
 
 import java.io.Serializable;
 

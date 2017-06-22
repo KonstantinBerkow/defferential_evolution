@@ -1,7 +1,6 @@
 package me.berkow.diffeval;
 
 import me.berkow.diffeval.problem.Member;
-import me.berkow.diffeval.problem.Problem;
 
 /**
  * Created by konstantinberkow on 5/11/17.
@@ -210,21 +209,21 @@ public final class Problems {
     public static Problem createProblemWithConstraints(int problemId, float[] lowerBounds, float[] upperBounds) {
         switch (problemId) {
             case 1:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem1(vector.toArray());
                     }
                 };
             case 2:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem2(vector.toArray());
                     }
                 };
             case 3:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem3(vector.toArray());
@@ -232,63 +231,63 @@ public final class Problems {
                 };
 
             case 4:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem4(vector.toArray());
                     }
                 };
             case 5:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem5(vector.toArray());
                     }
                 };
             case 6:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem6(vector.toArray());
                     }
                 };
             case 7:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem7(vector.toArray());
                     }
                 };
             case 8:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem8(vector.toArray());
                     }
                 };
             case 9:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem9(vector.toArray());
                     }
                 };
             case 10:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem10(vector.toArray());
                     }
                 };
             case 11:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem11(vector.toArray());
                     }
                 };
             case 12:
-                return new Problem(lowerBounds, upperBounds) {
+                return new Problem(problemId, lowerBounds, upperBounds) {
                     @Override
                     public float calculate(Member vector) {
                         return calculateProblem12(vector.toArray());

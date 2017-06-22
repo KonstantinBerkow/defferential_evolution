@@ -1,7 +1,6 @@
 package me.berkow.diffeval
 
 import me.berkow.diffeval.message.SubTask
-import me.berkow.diffeval.problem.Problem
 import me.berkow.diffeval.problem.bestValue
 import me.berkow.diffeval.problem.createRandomPopulation
 import java.nio.file.Files
@@ -79,7 +78,6 @@ fun main(args: Array<String>) {
             Problems.createProblemWithConstraints(10, problem600LowerConstraints, problem600UpperConstraints),
             Problems.createProblemWithConstraints(11, problem50LowerConstraints, problem50UpperConstraints),
             Problems.createProblemWithConstraints(12, problem05LowerConstraints, problem05UpperConstraints)
-
     )
             .map { createTask(maxIterations, populationSize, randomSeed, amplification, crossover, it, precision) }
             .map { task -> doAndMeasure({ Algorithms.standardDE(task, Random(randomSeed)) }) }
@@ -88,7 +86,7 @@ fun main(args: Array<String>) {
                 val iterations = result.iterationsCount
                 val seconds = time / 1000000000.0
 
-                Files.write(file, "${format.format(bestValue)};$iterations;${format.format(seconds)}\n".toByteArray(),
+                Files.write(file, "${result.problem.id};${format.format(bestValue)};$iterations;${format.format(seconds)}\n".toByteArray(),
                         StandardOpenOption.APPEND)
             }
 }

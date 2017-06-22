@@ -13,7 +13,6 @@ import me.berkow.diffeval.actor.TaskActor;
 import me.berkow.diffeval.message.MainResult;
 import me.berkow.diffeval.message.MainTask;
 import me.berkow.diffeval.problem.Population;
-import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.ProblemsKt;
 import me.berkow.diffeval.util.Util;
 

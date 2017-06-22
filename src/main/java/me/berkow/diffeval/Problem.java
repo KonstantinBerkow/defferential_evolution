@@ -1,4 +1,6 @@
-package me.berkow.diffeval.problem;
+package me.berkow.diffeval;
+
+import me.berkow.diffeval.problem.Member;
 
 import java.io.Serializable;
 
@@ -7,10 +9,12 @@ import java.io.Serializable;
  */
 public abstract class Problem implements Serializable {
 
+    private final int id;
     private final float[] lowerConstraints;
     private final float[] upperConstraints;
 
-    public Problem(float[] lowerConstraints, float[] upperConstraints) {
+    public Problem(int id, float[] lowerConstraints, float[] upperConstraints) {
+        this.id = id;
         this.lowerConstraints = lowerConstraints;
         this.upperConstraints = upperConstraints;
     }
@@ -25,6 +29,10 @@ public abstract class Problem implements Serializable {
 
     public int getSize() {
         return lowerConstraints.length;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public abstract float calculate(Member vector);

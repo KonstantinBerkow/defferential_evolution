@@ -12,7 +12,7 @@ import akka.pattern.Patterns;
 import me.berkow.diffeval.UtilKt;
 import me.berkow.diffeval.message.*;
 import me.berkow.diffeval.problem.Population;
-import me.berkow.diffeval.problem.Problem;
+import me.berkow.diffeval.Problem;
 import me.berkow.diffeval.problem.ProblemsKt;
 import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;

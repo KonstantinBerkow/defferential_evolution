@@ -1,5 +1,6 @@
 package me.berkow.diffeval.problem
 
+import me.berkow.diffeval.Problem
 import me.berkow.diffeval.message.MainResult
 import me.berkow.diffeval.message.SubResult
 import me.berkow.diffeval.nextFloat

@@ -1,7 +1,7 @@
 package me.berkow.diffeval.message;
 
 import me.berkow.diffeval.problem.Population;
-import me.berkow.diffeval.problem.Problem;
+import me.berkow.diffeval.Problem;
 
 /**
  * Created by konstantinberkow on 6/6/17.
