@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
 
     val size = map.getAsInt("-size", 10)
 
-    val maxIterations = map.getAsInt("-maxIterations", 100000)
+    val maxIterations = map.getAsInt("-maxIterations", 10000)
 
     val format = NumberFormat.getInstance()
     format.maximumFractionDigits = precision
@@ -88,7 +88,7 @@ fun main(args: Array<String>) {
                 val iterations = result.iterationsCount
                 val seconds = time / 1000000000.0
 
-                Files.write(file, "${result.problem.id};${format.format(bestValue)};$iterations;${format.format(seconds)}\n".toByteArray(),
+                Files.write(file, "${result.problem.id} , ${format.format(bestValue)} , $iterations , ${format.format(seconds)}\n".toByteArray(),
                         StandardOpenOption.APPEND)
             }
 }
