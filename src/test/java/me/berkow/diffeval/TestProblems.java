@@ -1,6 +1,5 @@
 package me.berkow.diffeval;
 
-import me.berkow.diffeval.problem.Problems;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -69,66 +68,66 @@ public class TestProblems {
         );
     }
 
-//    @Test
-//    public void testProblem7() {
-//        Assert.assertEquals(
-//                0,
-//                Problems.calculateProblem7(new float[]{0, 0, 0, 0}),
-//                0.0001
-//        );
-//
-//        Assert.assertEquals(
-//                418.98287762 * 8,
-//                Problems.calculateProblem7(new float[]{420.96F, 420.96F, 420.96F, 420.96F, 420.96F, 420.96F, 420.96F, 420.96F}),
-//                0.0001
-//        );
-//
-//        Assert.assertEquals(
-//                -418.98287762 * 8,
-//                Problems.calculateProblem7(new float[]{-420.96F, -420.96F, -420.96F, -420.96F, -420.96F, -420.96F, -420.96F, -420.96F}),
-//                0.0001
-//        );
-//    }
-//
-//    @Test
-//    public void testProblem10() {
-//        Assert.assertEquals(
-//                0,
-//                Problems.calculateProblem10(new float[]{0, 0, 0, 0}),
-//                0.0001
-//        );
-//    }
-//
-//    @Test
-//    public void testProblem11() {
-//        Assert.assertEquals(
-//                0,
-//                Problems.calculateProblem11(new float[]{1, 1, 1, 1}),
-//                0.0001
-//        );
-//    }
-//
-//    @Test
-//    public void testPenaltyFunction() {
-//        Assert.assertEquals(
-//                100,
-//                Problems.penalty(11, 10, 100, 4),
-//                0.0001
-//        );
-//
-//        Assert.assertEquals(
-//                100,
-//                Problems.penalty(-11, 10, 100, 4),
-//                0.0001
-//        );
-//    }
-//
-//    @Test
-//    public void testProblem12() {
-//        Assert.assertEquals(
-//                0,
-//                Problems.calculateProblem12(new float[]{0, 0, 0, 0}),
-//                0.0001
-//        );
-//    }
+    @Test
+    public void testProblem7() {
+        Assert.assertEquals(
+                0,
+                Problems.calculateProblem7(new float[]{0, 0, 0, 0}),
+                0.0001
+        );
+
+        Assert.assertEquals(
+                418.98287762 * 8,
+                Problems.calculateProblem7(new float[]{420.96F, 420.96F, 420.96F, 420.96F, 420.96F, 420.96F, 420.96F, 420.96F}),
+                0.0001
+        );
+
+        Assert.assertEquals(
+                -418.98287762 * 8,
+                Problems.calculateProblem7(new float[]{-420.96F, -420.96F, -420.96F, -420.96F, -420.96F, -420.96F, -420.96F, -420.96F}),
+                0.0001
+        );
+    }
+
+    @Test
+    public void testProblem10() {
+        Assert.assertEquals(
+                0,
+                Problems.calculateProblem10(new float[]{0, 0, 0, 0}),
+                0.0001
+        );
+    }
+
+    @Test
+    public void testProblem11() {
+        Assert.assertEquals(
+                0,
+                Problems.calculateProblem11(new float[]{1, 1, 1, 1}),
+                0.0001
+        );
+    }
+
+    @Test
+    public void testPenaltyFunction() {
+        Assert.assertEquals(
+                100,
+                Problems.penalty(11, 10, 100, 4),
+                0.0001
+        );
+
+        Assert.assertEquals(
+                100,
+                Problems.penalty(-11, 10, 100, 4),
+                0.0001
+        );
+    }
+
+    @Test
+    public void testProblem12() {
+        Assert.assertEquals(
+                0,
+                Problems.calculateProblem12(new float[]{0, 0, 0, 0}),
+                0.0001
+        );
+    }
 }

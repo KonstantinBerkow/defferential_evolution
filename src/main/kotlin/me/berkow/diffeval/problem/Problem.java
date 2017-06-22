@@ -1,7 +1,6 @@
 package me.berkow.diffeval.problem;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 /**
  * Created by konstantinberkow on 5/11/17.
@@ -29,12 +28,4 @@ public abstract class Problem implements Serializable {
     }
 
     public abstract float calculate(Member vector);
-
-    @Override
-    public String toString() {
-        return "Problem{" +
-                "lowerConstraints=" + Arrays.toString(lowerConstraints) +
-                ", upperConstraints=" + Arrays.toString(upperConstraints) +
-                '}';
-    }
 }

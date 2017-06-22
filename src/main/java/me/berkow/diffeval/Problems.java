@@ -1,11 +1,7 @@
-package me.berkow.diffeval.problem;
+package me.berkow.diffeval;
 
-import me.berkow.diffeval.util.Util;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import me.berkow.diffeval.problem.Member;
+import me.berkow.diffeval.problem.Problem;
 
 /**
  * Created by konstantinberkow on 5/11/17.
@@ -301,92 +297,5 @@ public final class Problems {
             default:
                 throw new IllegalArgumentException("Unknown problem id: " + problemId);
         }
-    }
-
-    public static Member createRandomVector(Problem problem, Random random) {
-        final int size = problem.getSize();
-        final float[] result = new float[size];
-
-        final float[] lowerConstraints = problem.getLowerConstraints();
-        final float[] upperConstraints = problem.getUpperConstraints();
-
-        for (int i = 0; i < size; i++) {
-            final float min = lowerConstraints[i];
-            final float max = upperConstraints[i];
-
-            result[i] = Util.nextFloat(min, max, random);
-        }
-
-        return new Member(result);
-    }
-
-    public static Population createRandomPopulation(int populationSize, Problem problem, Random random) {
-        final List<Member> population = new ArrayList<>(populationSize);
-
-        for (int i = 0; i < populationSize; i++) {
-            population.add(createRandomVector(problem, random));
-        }
-
-        return new Population(population.toArray(new Member[0]));
-    }
-
-    public static float calculatePopulationValue(Problem problem, Population population) {
-        float value = 0;
-
-        final Member[] members = population.getMembers();
-
-        for (Member vector : members) {
-            value += problem.calculate(vector);
-        }
-
-        return value / population.size();
-    }
-
-    public static boolean checkConvergence(Population population, Problem problem, double precision) {
-        final Member[] members = population.getMembers();
-        final int size = members.length;
-        float[] values = new float[size];
-        for (int i = 0; i < size; i++) {
-            values[i] = problem.calculate(members[i]);
-        }
-
-        for (int i = 0; i < size; i++) {
-            for (int j = i + 1; j < size; j++) {
-                final float diff = Math.abs(values[i] - values[j]);
-                if (diff >= precision) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public static float[] componentsDiff(Member first, Member second) {
-        final int size = first.size();
-        final float[] diffs = new float[size];
-        for (int i = 0; i < size; i++) {
-            diffs[i] = Math.abs(first.get(i) - second.get(i));
-        }
-        return diffs;
-    }
-
-    public static Member calculateAverageMember(Population population) {
-        final float[] res = new float[population.getMembers()[0].size()];
-        for (Member member : population.getMembers()) {
-            float[] array = member.toArray();
-            for (int i = 0, arrayLength = array.length; i < arrayLength; i++) {
-                res[i] += array[i];
-            }
-        }
-        for (int i = 0, resLength = res.length; i < resLength; i++) {
-            res[i] /= population.size();
-        }
-        return new Member(res);
-    }
-
-    public static float bestValue(Problem problem, Population population) {
-        final Member[] members = population.getMembers();
-        return ((float) Arrays.stream(members).mapToDouble(problem::calculate).min().getAsDouble());
     }
 }

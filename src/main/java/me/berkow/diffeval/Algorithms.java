@@ -5,7 +5,7 @@ import me.berkow.diffeval.message.SubTask;
 import me.berkow.diffeval.problem.Member;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
-import me.berkow.diffeval.problem.Problems;
+import me.berkow.diffeval.problem.ProblemsKt;
 import me.berkow.diffeval.util.Util;
 
 import java.text.NumberFormat;
@@ -28,11 +28,11 @@ public class Algorithms {
         final double precision = 1.0 / Math.pow(10, task.getPrecision());
 
         Population population = task.getInitialPopulation();
-        float previousValue = Problems.calculatePopulationValue(problem, population);
+        float previousValue = ProblemsKt.averageValue(population, problem);
         for (int i = 0; i < maxIterationsCount; i++) {
             population = createNewGeneration(population, task, random);
 
-            final float newValue = Problems.calculatePopulationValue(problem, population);
+            final float newValue = ProblemsKt.averageValue(population, problem);
             if (debug) {
                 System.out.println("new value: " + newValue);
                 System.out.println("prev value: " + previousValue);
@@ -57,7 +57,7 @@ public class Algorithms {
         final float crossoverProbability = task.getCrossoverProbability();
         final float amplification = task.getAmplification();
 
-        final Member[] members = previousGeneration.getMembers();
+        final Member[] members = previousGeneration.members().toArray(new Member[populationSize]);
 
         final float[] lowerConstraints = problem.getLowerConstraints();
         final float[] upperConstraints = problem.getUpperConstraints();
@@ -128,7 +128,7 @@ public class Algorithms {
 
         final Random random = randomSeed == -1 ? new Random() : new Random(randomSeed);
 
-        final Population population = Problems.createRandomPopulation(populationSize, problem, random);
+        final Population population = ProblemsKt.createRandomPopulation(problem, populationSize, random);
 
         final SubTask task = new SubTask(maxIterations, population, amplification, crossoverProbability, problem, precision);
 
@@ -139,8 +139,7 @@ public class Algorithms {
         System.out.printf("Result type: %s\n", result.getType());
         System.out.printf("Result iterations: %d\n", result.getIterationsCount());
 
-        final Member averageMember = Problems.calculateAverageMember(result.getPopulation());
-        final float bestValue = Problems.bestValue(problem, result.getPopulation());
+        final float bestValue = ProblemsKt.bestValue(result.getPopulation(), problem);
 //        System.out.printf("Result average member: %s\n", Util.prettyFloatArray(averageMember.toArray(), format));
         System.out.printf("Value: %s\n", Util.prettyNumber(bestValue, format));
         System.out.printf("Time consumed: %s\n", Util.prettyNumber((System.nanoTime() - nanoTime) / 1000000000.0, format));

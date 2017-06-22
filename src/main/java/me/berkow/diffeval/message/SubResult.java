@@ -2,7 +2,7 @@ package me.berkow.diffeval.message;
 
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
-import me.berkow.diffeval.problem.Problems;
+import me.berkow.diffeval.problem.ProblemsKt;
 
 import java.io.Serializable;
 
@@ -50,7 +50,7 @@ public class SubResult implements Serializable {
 
     public float getValue() {
         if (Float.isNaN(value)) {
-            value = Problems.calculatePopulationValue(problem, population);
+            value = ProblemsKt.averageValue(population, problem);
         }
         return value;
     }

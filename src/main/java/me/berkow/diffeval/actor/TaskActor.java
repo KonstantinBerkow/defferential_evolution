@@ -9,11 +9,11 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Pair;
 import akka.pattern.Patterns;
+import me.berkow.diffeval.UtilKt;
 import me.berkow.diffeval.message.*;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
-import me.berkow.diffeval.problem.Problems;
-import me.berkow.diffeval.util.Util;
+import me.berkow.diffeval.problem.ProblemsKt;
 import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 
@@ -54,20 +54,14 @@ public class TaskActor extends AbstractActor {
         final float f0 = task.getAmplification();
         final float c0 = task.getCrossoverProbability();
 
-//        final float rawF = f0 + (random.nextFloat() - 0.5F) / 2F;
-//        final float newF = Math.max(0F, Math.min(rawF, 2F));
-//
-//        final float rawC = c0 + (random.nextFloat() - 0.5F) / 4F;
-//        final float newC = Math.max(0F, Math.min(rawC, 1F));
-
         float newF = f0;
         while (newF == f0) {
-            newF = Util.nextFloat(0, 2, random);
+            newF = UtilKt.nextFloat(random, 0, 2);
         }
 
         float newC = c0;
         while (newC == c0) {
-            newC = Util.nextFloat(0, 1, random);
+            newC = UtilKt.nextFloat(random, 0, 1);
         }
 
         return new SubTask(task.getMaxIterationsCount(), task.getPopulation(), newF, newC, task.getProblem(), task.getPrecision());
@@ -108,7 +102,7 @@ public class TaskActor extends AbstractActor {
                 })
                 .match(MainTask.class, task -> {
                     currentIterationCount = 0;
-                    previousValue = Problems.calculatePopulationValue(task.getProblem(), task.getPopulation());
+                    previousValue = ProblemsKt.averageValue(task.getPopulation(), task.getProblem());
 
                     currentTask = task;
                     format.setMaximumFractionDigits(task.getPrecision());
@@ -147,23 +141,7 @@ public class TaskActor extends AbstractActor {
         logger.info("new population value: {}", result.getValue());
         logger.info("diff: {}", Math.abs(newValue - previousValue));
 
-//        final Member[] members = result.getPopulation().getMembers();
-//        final int size = members.length;
-//        boolean stop = false;
-//        for (int i = 0; i < size && !stop; i++) {
-//            for (int j = i + 1; j < size; j++) {
-//                final float diff = Math.abs(problem.calculate(members[i]) - problem.calculate(members[j]));
-//                if (diff >= precision) {
-//                    logger.info("Difference {}", Util.prettyNumber(diff, format));
-//                    final String formattedComponents = Util.prettyFloatArray(Problems.componentsDiff(members[i], members[j]), format);
-//                    logger.info("Component differences: {}", formattedComponents);
-//                    stop = true;
-//                    break;
-//                }
-//            }
-//        }
 
-//        if (Problems.checkConvergence(population, problem, 1.0 / Math.pow(10, precision))) {
         if (Math.abs(newValue - previousValue) < 1.0 / Math.pow(10, precision)) {
             onCompleted(result, "converged_population", originalSender);
             return;

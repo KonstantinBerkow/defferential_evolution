@@ -27,14 +27,6 @@ public final class Util {
         return ints;
     }
 
-    public static double nextDouble(double min, double max, Random random) {
-        return min + (max - min) * random.nextDouble();
-    }
-
-    public static float nextFloat(float min, float max, Random random) {
-        return min + (max - min) * random.nextFloat();
-    }
-
     public static int getIntOrDefault(Map<String, String> map, String key, int defaultValue) {
         final String value = map.get(key);
         if (value == null) {
@@ -69,23 +61,6 @@ public final class Util {
         return trueValue;
     }
 
-    public static double getDoubleOrDefault(Map<String, String> map, String key, double defaultValue) {
-        final String value = map.get(key);
-        if (value == null) {
-            return defaultValue;
-        }
-
-        double trueValue = defaultValue;
-
-        try {
-            trueValue = Double.parseDouble(value);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-
-        return trueValue;
-    }
-
     public static float getFloatOrDefault(Map<String, String> map, String key, float defaultValue) {
         final String value = map.get(key);
         if (value == null) {
@@ -101,26 +76,6 @@ public final class Util {
         }
 
         return trueValue;
-    }
-
-    public static double[] getDoubleArrayOrThrow(Map<String, String> map, String key, String msg) {
-        final String value = map.get(key);
-        if (value == null) {
-            throw new IllegalStateException(msg);
-        }
-
-        final String[] rawArr = value.split(",");
-        final double[] result = new double[rawArr.length];
-
-        try {
-            for (int i = 0; i < rawArr.length; i++) {
-                result[i] = Double.parseDouble(rawArr[i]);
-            }
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException(e);
-        }
-
-        return result;
     }
 
     public static float[] getFloatArrayOrThrow(Map<String, String> map, String key, String msg) {
@@ -141,25 +96,6 @@ public final class Util {
         }
 
         return result;
-    }
-
-
-    public static String prettyFloatArray(float[] array, NumberFormat format) {
-        if (array == null)
-            return "null";
-
-        int iMax = array.length - 1;
-        if (iMax == -1)
-            return "[]";
-
-        StringBuilder b = new StringBuilder();
-        b.append('[');
-        for (int i = 0; ; i++) {
-            b.append(format.format(array[i]));
-            if (i == iMax)
-                return b.append(']').toString();
-            b.append(", ");
-        }
     }
 
     public static String prettyNumber(double value, NumberFormat format) {

@@ -12,20 +12,14 @@ import com.typesafe.config.ConfigFactory;
 import me.berkow.diffeval.actor.TaskActor;
 import me.berkow.diffeval.message.MainResult;
 import me.berkow.diffeval.message.MainTask;
-import me.berkow.diffeval.problem.Member;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
-import me.berkow.diffeval.problem.Problems;
+import me.berkow.diffeval.problem.ProblemsKt;
 import me.berkow.diffeval.util.Util;
 
 import java.io.Console;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -146,7 +140,7 @@ public class DEFrontendMain {
 
         final Random random = randomSeed == -1 ? new Random() : new Random(randomSeed);
 
-        final Population population = Problems.createRandomPopulation(populationSize, problem, random);
+        final Population population = ProblemsKt.createRandomPopulation(problem, populationSize, random);
 
         final MainTask task = new MainTask(maxIterations, population,
                 amplification, crossoverProbability, splitCount, problem, precision);
@@ -173,20 +167,20 @@ public class DEFrontendMain {
         final NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(task.getPrecision());
 
-        Path file = Paths.get("task#" + taskId + ".csv");
-        final Member averageMember = Problems.calculateAverageMember(result.getPopulation());
-        final String formattedAverage = Util.prettyFloatArray(averageMember.toArray(), format);
-        final String dump = taskId + ";" + formattedAverage + ";" + result.getIterationsCount();
-        try {
-            Files.write(file, Collections.singletonList(dump), Charset.forName("UTF-8"));
-        } catch (IOException e) {
-            logger.error(e, "Failed to dump task result!");
-        }
+//        Path file = Paths.get("task#" + taskId + ".csv");
+//        final Member averageMember = Problems.calculateAverageMember(result.getPopulation());
+//        final String formattedAverage = Util.prettyFloatArray(averageMember.toArray(), format);
+//        final String dump = taskId + ";" + formattedAverage + ";" + result.getIterationsCount();
+//        try {
+//            Files.write(file, Collections.singletonList(dump), Charset.forName("UTF-8"));
+//        } catch (IOException e) {
+//            logger.error(e, "Failed to dump task result!");
+//        }
 
         logger.info("Completed due: {}", result.getType());
         logger.info("Result iterations: {}", result.getIterationsCount());
-        logger.info("Result population average: {}", formattedAverage);
-        logger.info("Average value: {}", task.getProblem().calculate(averageMember));
+//        logger.info("Result population average: {}", formattedAverage);
+//        logger.info("Average value: {}", task.getProblem().calculate(averageMember));
         logger.info("Time consumed: {}", Util.prettyNumber(timeConsumed / 1000000000.0, format));
     }
 
