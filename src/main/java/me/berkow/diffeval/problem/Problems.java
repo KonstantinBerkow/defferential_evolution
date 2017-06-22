@@ -3,6 +3,7 @@ package me.berkow.diffeval.problem;
 import me.berkow.diffeval.util.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -55,7 +56,7 @@ public final class Problems {
         for (int i = 0; i < vector.length; i++) {
             float innerSum = 0;
             for (int j = 0; j <= i; j++) {
-                innerSum += vector[j];
+                innerSum += Math.abs(vector[j]);
             }
             outerSum += innerSum;
         }
@@ -382,5 +383,10 @@ public final class Problems {
             res[i] /= population.size();
         }
         return new Member(res);
+    }
+
+    public static float bestValue(Problem problem, Population population) {
+        final Member[] members = population.getMembers();
+        return ((float) Arrays.stream(members).mapToDouble(problem::calculate).min().getAsDouble());
     }
 }

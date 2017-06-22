@@ -17,6 +17,10 @@ import java.util.*;
 public class Algorithms {
 
     public static SubResult standardDE(SubTask task, Random random) {
+        return standardDE(task, random, false);
+    }
+
+    public static SubResult standardDE(SubTask task, Random random, boolean debug) {
         final int maxIterationsCount = task.getMaxIterationsCount();
         final float amplification = task.getAmplification();
         final float crossoverProbability = task.getCrossoverProbability();
@@ -29,7 +33,10 @@ public class Algorithms {
             population = createNewGeneration(population, task, random);
 
             final float newValue = Problems.calculatePopulationValue(problem, population);
-
+            if (debug) {
+                System.out.println("new value: " + newValue);
+                System.out.println("prev value: " + previousValue);
+            }
             if (Math.abs(newValue - previousValue) < precision) {
                 return new SubResult(population, amplification, crossoverProbability, problem, "converged population", i, newValue);
             }
@@ -112,6 +119,8 @@ public class Algorithms {
 
         final int precision = Util.getIntOrDefault(argsMap, "-precision", 6);
 
+        final boolean debug = Boolean.parseBoolean(argsMap.getOrDefault("debug", "false"));
+
         final NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(precision);
 
@@ -125,14 +134,15 @@ public class Algorithms {
 
         final long nanoTime = System.nanoTime();
 
-        final SubResult result = standardDE(task, random);
-        System.out.printf("Result population: %s\n", result.getPopulation());
+        final SubResult result = standardDE(task, random, debug);
+//        System.out.printf("Result population: %s\n", result.getPopulation());
         System.out.printf("Result type: %s\n", result.getType());
         System.out.printf("Result iterations: %d\n", result.getIterationsCount());
 
         final Member averageMember = Problems.calculateAverageMember(result.getPopulation());
-        System.out.printf("Result average member: %s\n", Util.prettyFloatArray(averageMember.toArray(), format));
-        System.out.printf("Value: %s\n", Util.prettyNumber(problem.calculate(averageMember), format));
+        final float bestValue = Problems.bestValue(problem, result.getPopulation());
+//        System.out.printf("Result average member: %s\n", Util.prettyFloatArray(averageMember.toArray(), format));
+        System.out.printf("Value: %s\n", Util.prettyNumber(bestValue, format));
         System.out.printf("Time consumed: %s\n", Util.prettyNumber((System.nanoTime() - nanoTime) / 1000000000.0, format));
     }
 }
