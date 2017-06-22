@@ -62,7 +62,9 @@ fun main(args: Array<String>) {
     val problem05UpperConstraints = FloatArray(size) { 0.5F }
 
     val file = Paths.get(benchName + ".csv")
-    Files.delete(file)
+    if (Files.exists(file)) {
+        Files.delete(file)
+    }
     Files.createFile(file)
 
     listOf<Problem>(
