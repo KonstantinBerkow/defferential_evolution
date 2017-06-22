@@ -88,9 +88,9 @@ fun main(args: Array<String>) {
                 val iterations = result.iterationsCount
                 val seconds = time / 1000000000.0
 
-                val formateValue = format.format(bestValue).replace(",", "")
+                val formatedValue = format.format(bestValue).replace(",", "")
 
-                Files.write(file, "${result.problem.id} , $formateValue , $iterations , ${format.format(seconds)}\n".toByteArray(),
+                Files.write(file, "${result.problem.id} , $formatedValue , $iterations , ${format.format(seconds)}\n".toByteArray(),
                         StandardOpenOption.APPEND)
             }
 }

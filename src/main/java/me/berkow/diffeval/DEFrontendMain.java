@@ -166,21 +166,9 @@ public class DEFrontendMain {
         final NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(task.getPrecision());
 
-//        Path file = Paths.get("task#" + taskId + ".csv");
-//        final Member averageMember = Problems.calculateAverageMember(result.getPopulation());
-//        final String formattedAverage = Util.prettyFloatArray(averageMember.toArray(), format);
-//        final String dump = taskId + ";" + formattedAverage + ";" + result.getIterationsCount();
-//        try {
-//            Files.write(file, Collections.singletonList(dump), Charset.forName("UTF-8"));
-//        } catch (IOException e) {
-//            logger.error(e, "Failed to dump task result!");
-//        }
+        final String formattedValue = format.format(ProblemsKt.bestValue(result)).replace(",", "");
 
-        logger.info("Completed due: {}", result.getType());
-        logger.info("Result iterations: {}", result.getIterationsCount());
-//        logger.info("Result population average: {}", formattedAverage);
-//        logger.info("Average value: {}", task.getProblem().calculate(averageMember));
-        logger.info("Time consumed: {}", Util.prettyNumber(timeConsumed / 1000000000.0, format));
+        logger.info("{} , {} , {}\n",formattedValue, result.getIterationsCount(), format.format(timeConsumed / 1000000000.0));
     }
 
     private static void onFailure(ActorSystem system, Throwable failure) {
