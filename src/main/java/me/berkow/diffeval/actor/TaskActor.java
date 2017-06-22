@@ -10,7 +10,6 @@ import akka.event.LoggingAdapter;
 import akka.japi.Pair;
 import akka.pattern.Patterns;
 import me.berkow.diffeval.message.*;
-import me.berkow.diffeval.problem.Member;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
 import me.berkow.diffeval.problem.Problems;
@@ -27,7 +26,7 @@ import java.util.Random;
 /**
  * Created by konstantinberkow on 5/8/17.
  */
-public class DETaskActor extends AbstractActor {
+public class TaskActor extends AbstractActor {
     static final String BACKEND_REGISTRATION = "register";
 
     private final String port;
@@ -37,21 +36,21 @@ public class DETaskActor extends AbstractActor {
     private final NumberFormat format = NumberFormat.getInstance();
 
     private int currentIterationCount = 0;
-    private MainDETask currentTask = null;
+    private MainTask currentTask = null;
     private float previousValue;
 
-    public DETaskActor(String port) {
+    public TaskActor(String port) {
         this.port = port;
         backends = new ArrayList<>();
         random = new Random();
     }
 
-    private static DETask createTask(MainDETask task) {
-        return new DETask(task.getMaxIterationsCount(), task.getPopulation(),
+    private static SubTask createTask(MainTask task) {
+        return new SubTask(task.getMaxIterationsCount(), task.getPopulation(),
                 task.getAmplification(), task.getCrossoverProbability(), task.getProblem(), task.getPrecision());
     }
 
-    private static DETask createTask(MainDETask task, Random random) {
+    private static SubTask createTask(MainTask task, Random random) {
         final float f0 = task.getAmplification();
         final float c0 = task.getCrossoverProbability();
 
@@ -71,15 +70,15 @@ public class DETaskActor extends AbstractActor {
             newC = Util.nextFloat(0, 1, random);
         }
 
-        return new DETask(task.getMaxIterationsCount(), task.getPopulation(), newF, newC, task.getProblem(), task.getPrecision());
+        return new SubTask(task.getMaxIterationsCount(), task.getPopulation(), newF, newC, task.getProblem(), task.getPrecision());
     }
 
-    private static DEResult selectResult(Iterable<DEResult> results) {
-        final Iterator<DEResult> iterator = results.iterator();
+    private static SubResult selectResult(Iterable<SubResult> results) {
+        final Iterator<SubResult> iterator = results.iterator();
         float previousValue = Float.MAX_VALUE;
-        DEResult bestResult = null;
+        SubResult bestResult = null;
         while (iterator.hasNext()) {
-            final DEResult result = iterator.next();
+            final SubResult result = iterator.next();
             final float value = result.getValue();
 
             if (bestResult == null) {
@@ -102,12 +101,12 @@ public class DETaskActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(MainDETask.class, task -> backends.isEmpty(), task -> {
+                .match(MainTask.class, task -> backends.isEmpty(), task -> {
                     TaskFailedMsg message = new TaskFailedMsg("Service unavailable, try again later", task);
                     final ActorRef sender = getSender();
                     sender.tell(message, sender);
                 })
-                .match(MainDETask.class, task -> {
+                .match(MainTask.class, task -> {
                     currentIterationCount = 0;
                     previousValue = Problems.calculatePopulationValue(task.getProblem(), task.getPopulation());
 
@@ -117,7 +116,7 @@ public class DETaskActor extends AbstractActor {
                     calculate(task, getSender());
                 })
                 .match(Pair.class, pair -> {
-                    final DEResult result = (DEResult) pair.first();
+                    final SubResult result = (SubResult) pair.first();
                     final ActorRef originalSender = (ActorRef) pair.second();
 
                     proceedResults(result, originalSender);
@@ -131,7 +130,7 @@ public class DETaskActor extends AbstractActor {
                 .build();
     }
 
-    private void proceedResults(DEResult result, ActorRef originalSender) {
+    private void proceedResults(SubResult result, ActorRef originalSender) {
         currentIterationCount++;
 
         final int maxIterationsCount = currentTask.getMaxIterationsCount();
@@ -175,7 +174,7 @@ public class DETaskActor extends AbstractActor {
             return;
         }
 
-        final MainDETask newTask = new MainDETask(maxIterationsCount, population, amplification, crossoverProbability,
+        final MainTask newTask = new MainTask(maxIterationsCount, population, amplification, crossoverProbability,
                 currentTask.getSplitSize(), problem, precision);
 
         previousValue = newValue;
@@ -183,8 +182,8 @@ public class DETaskActor extends AbstractActor {
         calculate(newTask, originalSender);
     }
 
-    private void onCompleted(DEResult result, String type, ActorRef originalSender) {
-        final MainDEResult mainDEResult = new MainDEResult(result, type, currentIterationCount);
+    private void onCompleted(SubResult result, String type, ActorRef originalSender) {
+        final MainResult mainDEResult = new MainResult(result, type, currentIterationCount);
         originalSender.tell(mainDEResult, getSelf());
     }
 
@@ -194,7 +193,7 @@ public class DETaskActor extends AbstractActor {
         backends.clear(); //huh?
     }
 
-    private void calculate(MainDETask task, final ActorRef originalSender) {
+    private void calculate(MainTask task, final ActorRef originalSender) {
         final ActorSystem system = getContext().getSystem();
 
         logger.debug("Calculate from: {}, by: {}", task.getPopulation(), this);
@@ -203,27 +202,27 @@ public class DETaskActor extends AbstractActor {
 
         final ExecutionContextExecutor dispatcher = system.dispatcher();
 
-        final List<DETask> tasks = new ArrayList<>(splitSize);
+        final List<SubTask> tasks = new ArrayList<>(splitSize);
         tasks.add(createTask(task));
         for (int i = 1; i < splitSize; i++) {
             tasks.add(createTask(task, random));
         }
 
-        final List<Future<DEResult>> futures = new ArrayList<>(splitSize);
+        final List<Future<SubResult>> futures = new ArrayList<>(splitSize);
         for (int i = 0; i < tasks.size(); i++) {
-            final DETask splitedTask = tasks.get(i);
+            final SubTask splitedTask = tasks.get(i);
 
             logger.debug("new control values F: {}, CR: {}", splitedTask.getAmplification(), splitedTask.getCrossoverProbability());
 
-            final Future<DEResult> future = Patterns.ask(backends.get(i % backends.size()), splitedTask, 10000)
-                    .transform(result -> (DEResult) result, error -> error, dispatcher);
+            final Future<SubResult> future = Patterns.ask(backends.get(i % backends.size()), splitedTask, 10000)
+                    .transform(result -> (SubResult) result, error -> error, dispatcher);
 
             futures.add(future);
         }
 
-        final Future<Iterable<DEResult>> resultsFuture = Futures.sequence(futures, dispatcher);
+        final Future<Iterable<SubResult>> resultsFuture = Futures.sequence(futures, dispatcher);
 
-        final Future<Pair<DEResult, ActorRef>> resultFuture = resultsFuture
+        final Future<Pair<SubResult, ActorRef>> resultFuture = resultsFuture
                 .transform(results -> new Pair<>(selectResult(results), originalSender), error -> error, dispatcher);
 
         final ActorRef self = getSelf();
@@ -233,7 +232,7 @@ public class DETaskActor extends AbstractActor {
 
     @Override
     public String toString() {
-        return "DETaskActor{" +
+        return "TaskActor{" +
                 "port='" + port + '\'' +
                 ", backends=" + backends +
                 '}';

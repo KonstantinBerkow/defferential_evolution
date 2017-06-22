@@ -7,7 +7,7 @@ import me.berkow.diffeval.problem.Problems;
 import java.io.Serializable;
 
 
-public class DEResult implements Serializable {
+public class SubResult implements Serializable {
     private final Population population;
     private final float amplification;
     private final float crossoverProbability;
@@ -16,8 +16,8 @@ public class DEResult implements Serializable {
     private final int iterationsCount;
     private float value = Float.NaN;
 
-    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem,
-                    String type, int iterationsCount) {
+    public SubResult(Population population, float amplification, float crossoverProbability, Problem problem,
+                     String type, int iterationsCount) {
         this.population = population;
         this.amplification = amplification;
         this.crossoverProbability = crossoverProbability;
@@ -26,8 +26,8 @@ public class DEResult implements Serializable {
         this.iterationsCount = iterationsCount;
     }
 
-    public DEResult(Population population, float amplification, float crossoverProbability, Problem problem,
-                    String type, int iterationsCount, float value) {
+    public SubResult(Population population, float amplification, float crossoverProbability, Problem problem,
+                     String type, int iterationsCount, float value) {
         this(population, amplification, crossoverProbability, problem, type, iterationsCount);
         this.value = value;
     }

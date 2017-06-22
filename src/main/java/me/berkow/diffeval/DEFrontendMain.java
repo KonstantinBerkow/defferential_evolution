@@ -9,9 +9,9 @@ import akka.event.LoggingAdapter;
 import akka.pattern.Patterns;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import me.berkow.diffeval.actor.DETaskActor;
-import me.berkow.diffeval.message.MainDEResult;
-import me.berkow.diffeval.message.MainDETask;
+import me.berkow.diffeval.actor.TaskActor;
+import me.berkow.diffeval.message.MainResult;
+import me.berkow.diffeval.message.MainTask;
 import me.berkow.diffeval.problem.Member;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
@@ -71,7 +71,7 @@ public class DEFrontendMain {
 
         final ActorSystem system = ActorSystem.create("DifferentialEvolution", config);
 
-        final Props taskActorProps = Props.create(DETaskActor.class, port);
+        final Props taskActorProps = Props.create(TaskActor.class, port);
 
         final ActorRef taskActorRef = system.actorOf(taskActorProps, "frontend");
 
@@ -148,16 +148,16 @@ public class DEFrontendMain {
 
         final Population population = Problems.createRandomPopulation(populationSize, problem, random);
 
-        final MainDETask task = new MainDETask(maxIterations, population,
+        final MainTask task = new MainTask(maxIterations, population,
                 amplification, crossoverProbability, splitCount, problem, precision);
 
         final long nanoTime = System.nanoTime();
 
         Patterns.ask(taskActorRef, task, 10000).transform(
-                value -> (MainDEResult) value,
-                error -> error, system.dispatcher()).onComplete(new OnComplete<MainDEResult>() {
+                value -> (MainResult) value,
+                error -> error, system.dispatcher()).onComplete(new OnComplete<MainResult>() {
             @Override
-            public void onComplete(Throwable failure, MainDEResult success) throws Throwable {
+            public void onComplete(Throwable failure, MainResult success) throws Throwable {
                 sCanProcessInput = true;
                 if (failure == null) {
                     onCompleted(system, problemId, success, logger, task, System.nanoTime() - nanoTime);
@@ -168,8 +168,8 @@ public class DEFrontendMain {
         }, system.dispatcher());
     }
 
-    private static void onCompleted(ActorSystem system, int taskId, MainDEResult result, LoggingAdapter logger,
-                                    MainDETask task, long timeConsumed) {
+    private static void onCompleted(ActorSystem system, int taskId, MainResult result, LoggingAdapter logger,
+                                    MainTask task, long timeConsumed) {
         final NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(task.getPrecision());
 

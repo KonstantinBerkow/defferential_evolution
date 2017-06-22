@@ -9,8 +9,8 @@ import akka.cluster.MemberStatus;
 import akka.dispatch.Futures;
 import akka.pattern.Patterns;
 import me.berkow.diffeval.Algorithms;
-import me.berkow.diffeval.message.DEResult;
-import me.berkow.diffeval.message.DETask;
+import me.berkow.diffeval.message.SubResult;
+import me.berkow.diffeval.message.SubTask;
 import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 
@@ -19,13 +19,13 @@ import java.util.concurrent.Callable;
 import java.util.stream.StreamSupport;
 
 
-public class DECalculationActor extends AbstractActor {
+public class WorkerActor extends AbstractActor {
 
     private final String port;
     private final Random random = new Random();
     private Cluster cluster;
 
-    public DECalculationActor(String port) {
+    public WorkerActor(String port) {
         this.port = port;
     }
 
@@ -40,9 +40,9 @@ public class DECalculationActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(DETask.class, task -> {
+                .match(SubTask.class, task -> {
                     final ExecutionContextExecutor dispatcher = getContext().getSystem().dispatcher();
-                    final Future<DEResult> result = Futures.future(createCalculationCallable(task), dispatcher);
+                    final Future<SubResult> result = Futures.future(createCalculationCallable(task), dispatcher);
 
                     Patterns.pipe(result, dispatcher).to(getSender(), getSelf());
                 })
@@ -63,17 +63,17 @@ public class DECalculationActor extends AbstractActor {
     private void register(Member member) {
         if (member.hasRole("frontend")) {
             getContext().actorSelection(member.address() + "/user/frontend")
-                    .tell(DETaskActor.BACKEND_REGISTRATION, getSelf());
+                    .tell(TaskActor.BACKEND_REGISTRATION, getSelf());
         }
     }
 
-    private Callable<DEResult> createCalculationCallable(final DETask task) {
+    private Callable<SubResult> createCalculationCallable(final SubTask task) {
         return () -> Algorithms.standardDE(task, random);
     }
 
     @Override
     public String toString() {
-        return "DECalculationActor{" +
+        return "WorkerActor{" +
                 "port='" + port + '\'' +
                 ", cluster=" + cluster +
                 '}';

@@ -4,7 +4,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import me.berkow.diffeval.actor.DECalculationActor;
+import me.berkow.diffeval.actor.WorkerActor;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -46,6 +46,6 @@ public class DEBackendMain {
 
         ActorSystem system = ActorSystem.create("DifferentialEvolution", config);
 
-        system.actorOf(Props.create(DECalculationActor.class, port), "backend");
+        system.actorOf(Props.create(WorkerActor.class, port), "backend");
     }
 }

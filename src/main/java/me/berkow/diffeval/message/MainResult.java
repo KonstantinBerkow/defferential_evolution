@@ -6,7 +6,7 @@ import me.berkow.diffeval.problem.Problem;
 /**
  * Created by konstantinberkow on 6/6/17.
  */
-public class MainDEResult {
+public class MainResult {
     private final Population population;
     private final float amplification;
     private final float crossoverProbability;
@@ -15,7 +15,7 @@ public class MainDEResult {
     private final String type;
     private final int iterationsCount;
 
-    public MainDEResult(DEResult result, String type, int iterationsCount) {
+    public MainResult(SubResult result, String type, int iterationsCount) {
         this.population = result.getPopulation();
         this.amplification = result.getAmplification();
         this.crossoverProbability = result.getCrossoverProbability();
@@ -55,7 +55,7 @@ public class MainDEResult {
 
     @Override
     public String toString() {
-        return "MainDEResult{" +
+        return "MainResult{" +
                 "population=" + population +
                 ", amplification=" + amplification +
                 ", crossoverProbability=" + crossoverProbability +

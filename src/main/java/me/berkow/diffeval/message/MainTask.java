@@ -5,22 +5,26 @@ import me.berkow.diffeval.problem.Problem;
 
 import java.io.Serializable;
 
-
-public class DETask implements Serializable {
+/**
+ * Created by konstantinberkow on 5/9/17.
+ */
+public class MainTask implements Serializable {
 
     private final int maxIterationsCount;
-    private final Population initialPopulation;
+    private final Population population;
     private final float amplification;
     private final float crossoverProbability;
+    private final int splitSize;
     private final Problem problem;
     private final int precision;
 
-    public DETask(int maxIterationsCount, Population initialPopulation, float amplification, float convergence,
-                  Problem problem, int precision) {
+    public MainTask(int maxIterationsCount, Population population, float amplification,
+                    float crossoverProbability, int splitSize, Problem problem, int precision) {
         this.maxIterationsCount = maxIterationsCount;
-        this.initialPopulation = initialPopulation;
+        this.population = population;
         this.amplification = amplification;
-        this.crossoverProbability = convergence;
+        this.crossoverProbability = crossoverProbability;
+        this.splitSize = splitSize;
         this.problem = problem;
         this.precision = precision;
     }
@@ -29,8 +33,8 @@ public class DETask implements Serializable {
         return maxIterationsCount;
     }
 
-    public Population getInitialPopulation() {
-        return initialPopulation;
+    public Population getPopulation() {
+        return population;
     }
 
     public float getAmplification() {
@@ -41,12 +45,12 @@ public class DETask implements Serializable {
         return crossoverProbability;
     }
 
-    public Problem getProblem() {
-        return problem;
+    public int getSplitSize() {
+        return splitSize;
     }
 
-    public int getPopulationSize() {
-        return initialPopulation.size();
+    public Problem getProblem() {
+        return problem;
     }
 
     public int getPrecision() {
@@ -55,11 +59,12 @@ public class DETask implements Serializable {
 
     @Override
     public String toString() {
-        return "DETask{" +
+        return "MainTask{" +
                 "maxIterationsCount=" + maxIterationsCount +
-                ", initialPopulation=" + initialPopulation +
+                ", population=" + population +
                 ", amplification=" + amplification +
                 ", crossoverProbability=" + crossoverProbability +
+                ", splitSize=" + splitSize +
                 ", problem=" + problem +
                 ", precision=" + precision +
                 '}';

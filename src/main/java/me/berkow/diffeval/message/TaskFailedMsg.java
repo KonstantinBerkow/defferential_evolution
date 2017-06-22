@@ -5,9 +5,9 @@ import java.io.Serializable;
 
 public class TaskFailedMsg implements Serializable {
     private final String msg;
-    private final MainDETask task;
+    private final MainTask task;
 
-    public TaskFailedMsg(String msg, MainDETask task) {
+    public TaskFailedMsg(String msg, MainTask task) {
 
         this.msg = msg;
         this.task = task;
@@ -17,7 +17,7 @@ public class TaskFailedMsg implements Serializable {
         return msg;
     }
 
-    public MainDETask getTask() {
+    public MainTask getTask() {
         return task;
     }
 

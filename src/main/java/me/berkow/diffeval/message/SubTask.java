@@ -5,26 +5,22 @@ import me.berkow.diffeval.problem.Problem;
 
 import java.io.Serializable;
 
-/**
- * Created by konstantinberkow on 5/9/17.
- */
-public class MainDETask implements Serializable {
+
+public class SubTask implements Serializable {
 
     private final int maxIterationsCount;
-    private final Population population;
+    private final Population initialPopulation;
     private final float amplification;
     private final float crossoverProbability;
-    private final int splitSize;
     private final Problem problem;
     private final int precision;
 
-    public MainDETask(int maxIterationsCount, Population population, float amplification,
-                      float crossoverProbability, int splitSize, Problem problem, int precision) {
+    public SubTask(int maxIterationsCount, Population initialPopulation, float amplification, float convergence,
+                   Problem problem, int precision) {
         this.maxIterationsCount = maxIterationsCount;
-        this.population = population;
+        this.initialPopulation = initialPopulation;
         this.amplification = amplification;
-        this.crossoverProbability = crossoverProbability;
-        this.splitSize = splitSize;
+        this.crossoverProbability = convergence;
         this.problem = problem;
         this.precision = precision;
     }
@@ -33,8 +29,8 @@ public class MainDETask implements Serializable {
         return maxIterationsCount;
     }
 
-    public Population getPopulation() {
-        return population;
+    public Population getInitialPopulation() {
+        return initialPopulation;
     }
 
     public float getAmplification() {
@@ -45,12 +41,12 @@ public class MainDETask implements Serializable {
         return crossoverProbability;
     }
 
-    public int getSplitSize() {
-        return splitSize;
-    }
-
     public Problem getProblem() {
         return problem;
+    }
+
+    public int getPopulationSize() {
+        return initialPopulation.size();
     }
 
     public int getPrecision() {
@@ -59,12 +55,11 @@ public class MainDETask implements Serializable {
 
     @Override
     public String toString() {
-        return "MainDETask{" +
+        return "SubTask{" +
                 "maxIterationsCount=" + maxIterationsCount +
-                ", population=" + population +
+                ", initialPopulation=" + initialPopulation +
                 ", amplification=" + amplification +
                 ", crossoverProbability=" + crossoverProbability +
-                ", splitSize=" + splitSize +
                 ", problem=" + problem +
                 ", precision=" + precision +
                 '}';

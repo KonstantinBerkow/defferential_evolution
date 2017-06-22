@@ -1,7 +1,7 @@
 package me.berkow.diffeval;
 
-import me.berkow.diffeval.message.DEResult;
-import me.berkow.diffeval.message.DETask;
+import me.berkow.diffeval.message.SubResult;
+import me.berkow.diffeval.message.SubTask;
 import me.berkow.diffeval.problem.Member;
 import me.berkow.diffeval.problem.Population;
 import me.berkow.diffeval.problem.Problem;
@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class Algorithms {
 
-    public static DEResult standardDE(DETask task, Random random) {
+    public static SubResult standardDE(SubTask task, Random random) {
         final int maxIterationsCount = task.getMaxIterationsCount();
         final float amplification = task.getAmplification();
         final float crossoverProbability = task.getCrossoverProbability();
@@ -31,16 +31,16 @@ public class Algorithms {
             final float newValue = Problems.calculatePopulationValue(problem, population);
 
             if (Math.abs(newValue - previousValue) < precision) {
-                return new DEResult(population, amplification, crossoverProbability, problem, "converged population", i, newValue);
+                return new SubResult(population, amplification, crossoverProbability, problem, "converged population", i, newValue);
             }
 
             previousValue = newValue;
         }
 
-        return new DEResult(population, amplification, crossoverProbability, problem, "max_iterations", maxIterationsCount, previousValue);
+        return new SubResult(population, amplification, crossoverProbability, problem, "max_iterations", maxIterationsCount, previousValue);
     }
 
-    public static Population createNewGeneration(final Population previousGeneration, DETask task, Random random) {
+    public static Population createNewGeneration(final Population previousGeneration, SubTask task, Random random) {
         final int populationSize = task.getPopulationSize();
         final List<Member> newVectors = new ArrayList<>(populationSize);
 
@@ -121,11 +121,11 @@ public class Algorithms {
 
         final Population population = Problems.createRandomPopulation(populationSize, problem, random);
 
-        final DETask task = new DETask(maxIterations, population, amplification, crossoverProbability, problem, precision);
+        final SubTask task = new SubTask(maxIterations, population, amplification, crossoverProbability, problem, precision);
 
         final long nanoTime = System.nanoTime();
 
-        final DEResult result = standardDE(task, random);
+        final SubResult result = standardDE(task, random);
         System.out.printf("Result population: %s\n", result.getPopulation());
         System.out.printf("Result type: %s\n", result.getType());
         System.out.printf("Result iterations: %d\n", result.getIterationsCount());
