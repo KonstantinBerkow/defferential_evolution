@@ -15,12 +15,12 @@ public class SubTask implements Serializable {
     private final Problem problem;
     private final int precision;
 
-    public SubTask(int maxIterationsCount, Population initialPopulation, float amplification, float convergence,
+    public SubTask(int maxIterationsCount, Population initialPopulation, float amplification, float crossover,
                    Problem problem, int precision) {
         this.maxIterationsCount = maxIterationsCount;
         this.initialPopulation = initialPopulation;
         this.amplification = amplification;
-        this.crossoverProbability = convergence;
+        this.crossoverProbability = crossover;
         this.problem = problem;
         this.precision = precision;
     }

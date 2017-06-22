@@ -31,3 +31,35 @@ fun NumberFormat.prettyFloatArray(array: FloatArray?): String {
         i++
     }
 }
+
+fun Array<String>.toMap(): Map<String, String> {
+    val map = mutableMapOf<String, String>()
+
+    for (i in 0..size - 1 step 2) {
+        map.put(get(i), get(i + 1))
+    }
+
+    return map.toMap()
+}
+
+fun Map<String, String>.getAsFloat(key: String, default: Float = 0F) = get(key)?.toFloat() ?: default
+
+fun Map<String, String>.getAsInt(key: String, default: Int = 0) = get(key)?.toInt() ?: default
+
+fun Map<String, String>.getAsLong(key: String, default: Long = 0) = get(key)?.toLong() ?: default
+
+inline fun <R> doAndMeasure(func: () -> R, consumer: (R, Long) -> Unit) {
+    val start = System.nanoTime()
+    val result = func()
+    val elapsed = System.nanoTime() - start
+
+    consumer(result, elapsed)
+}
+
+inline fun <R> doAndMeasure(func: () -> R): Pair<R, Long> {
+    val start = System.nanoTime()
+    val result = func()
+    val elapsed = System.nanoTime() - start
+
+    return Pair(result, elapsed)
+}

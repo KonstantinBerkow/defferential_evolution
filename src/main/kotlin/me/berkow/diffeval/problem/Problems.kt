@@ -1,5 +1,7 @@
 package me.berkow.diffeval.problem
 
+import me.berkow.diffeval.message.MainResult
+import me.berkow.diffeval.message.SubResult
 import me.berkow.diffeval.nextFloat
 import java.util.*
 
@@ -31,3 +33,7 @@ fun Problem.createRandomPopulation(populationSize: Int, random: Random): Populat
 
     return Population(population)
 }
+
+fun SubResult.bestValue() = population.bestValue(problem)
+
+fun MainResult.bestValue() = population.bestValue(problem)
